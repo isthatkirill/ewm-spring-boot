@@ -1,6 +1,7 @@
 package ru.practicum.statClient;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -9,6 +10,7 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import ru.practicum.statDto.dto.EndpointHitDto;
+import ru.practicum.statDto.dto.ViewStatsDto;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
@@ -35,7 +37,7 @@ public class StatClient {
                 .block();
     }
 
-    public ResponseEntity<Object> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, boolean unique) {
+    public ResponseEntity<List<ViewStatsDto>> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, boolean unique) {
         return webclient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/stats")
@@ -44,10 +46,15 @@ public class StatClient {
                         .queryParam("uris", uris)
                         .queryParam("unique", unique)
                         .build())
-                .exchangeToMono(clientResponse -> clientResponse.statusCode().is2xxSuccessful() ?
-                        clientResponse.bodyToMono(Object.class).map(body ->
-                                ResponseEntity.status(HttpStatus.CREATED).body(body)) :
-                        clientResponse.createException().flatMap(Mono::error))
+                .exchangeToMono(clientResponse -> {
+            if (clientResponse.statusCode().is2xxSuccessful()) {
+                return clientResponse.toEntity(new ParameterizedTypeReference<List<ViewStatsDto>>() {})
+                        .map(responseEntity -> ResponseEntity.status(HttpStatus.CREATED).body(responseEntity.getBody()));
+            } else {
+                return clientResponse.bodyToMono(String.class)
+                        .flatMap(errorMessage -> Mono.error(new RuntimeException(errorMessage)));
+            }
+        })
                 .block();
     }
 
