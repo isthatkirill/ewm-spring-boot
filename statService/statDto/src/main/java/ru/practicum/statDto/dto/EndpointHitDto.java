@@ -18,17 +18,17 @@ public class EndpointHitDto {
 
     Long id;
 
-    @NotBlank
+    @NotBlank(message = "App cannot be blank")
     String app;
 
-    @NotBlank
+    @NotBlank(message = "Uri cannot be blank")
     String uri;
 
-    @NotBlank
+    @NotBlank(message = "Ip cannot be blank")
     String ip;
 
-    @Past
-    @NotNull
+    @Past(message = "Timestamp cannot be in future")
+    @NotNull(message = "Timestamp cannot be null")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     LocalDateTime timestamp;
 
