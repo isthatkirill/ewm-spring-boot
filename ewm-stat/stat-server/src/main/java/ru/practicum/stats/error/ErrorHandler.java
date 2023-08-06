@@ -17,35 +17,35 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse invalidArgumentHandle(final ConstraintViolationException e) {
-        log.warn("{}: {}", e.getClass().getSimpleName(), e.getMessage());
+        log.warn("{}: {}", e.getClass().getSimpleName(), e.getMessage(), e);
         return new ErrorResponse("Validation error", e.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse invalidArgumentHandle(final MethodArgumentNotValidException e) {
-        log.warn("{}: {}", e.getClass().getSimpleName(), e.getMessage());
+        log.warn("{}: {}", e.getClass().getSimpleName(), e.getMessage(), e);
         return new ErrorResponse("Validation error", e.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse missingRequestParameterHandle(final MissingServletRequestParameterException e) {
-        log.warn("{}: {}", e.getClass().getSimpleName(), e.getMessage());
+        log.warn("{}: {}", e.getClass().getSimpleName(), e.getMessage(), e);
         return new ErrorResponse("Missing request parameter", e.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse illegalStateHandle(final IllegalStateException e) {
-        log.warn("{}: {}", e.getClass().getSimpleName(), e.getMessage());
+        log.warn("{}: {}", e.getClass().getSimpleName(), e.getMessage(), e);
         return new ErrorResponse("Invalid arguments given", e.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse unexpectedErrorHandle(final Throwable e) {
-        log.warn("{}: {}", e.getClass().getSimpleName(), e.getMessage());
+        log.warn("{}: {}", e.getClass().getSimpleName(), e.getMessage(), e);
         return new ErrorResponse("An unexpected error has occurred", e.getMessage());
     }
 

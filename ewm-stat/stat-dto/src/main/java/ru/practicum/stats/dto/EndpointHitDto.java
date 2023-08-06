@@ -3,6 +3,7 @@ package ru.practicum.stats.dto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import ru.practicum.stats.util.Formats;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -33,7 +34,7 @@ public class EndpointHitDto {
 
     @Past(message = "Timestamp cannot be in future")
     @NotNull(message = "Timestamp cannot be null")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = Formats.DATE_PATTERN)
     LocalDateTime timestamp;
 
 }

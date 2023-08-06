@@ -28,7 +28,7 @@ class StatsServiceImplTest {
 
     @Test
     @Order(1)
-    @Sql(value = "/testdata/test_schema.sql")
+    @Sql(value = {"/testdata/before_test_class.sql", "/schema.sql"})
     void addHitTest() {
 
         EndpointHitDto endpointHit = EndpointHitDto.builder()

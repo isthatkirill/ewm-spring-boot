@@ -12,7 +12,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
-@Sql(value = {"/testdata/test_schema.sql", "/testdata/add_more_hits.sql"})
+@Sql(value = {"/testdata/before_test_class.sql", "/schema.sql", "/testdata/add_more_hits.sql"})
 class StatsRepositoryTest {
 
     @Autowired
