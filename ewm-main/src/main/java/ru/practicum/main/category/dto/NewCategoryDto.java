@@ -14,7 +14,7 @@ import javax.validation.constraints.Size;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class NewCategoryDto {
 
-    @NotBlank
+    @NotBlank(message = "Name cannot be blank")
     @Size(min = 1, max = 50, message = "The category name must be from 1 to 50 characters")
     String name;
 

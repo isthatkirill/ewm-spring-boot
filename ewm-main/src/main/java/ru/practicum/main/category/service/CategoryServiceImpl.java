@@ -57,10 +57,17 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<CategoryDto> getAll(Integer from, Integer size) {
         Pageable pageable = PageRequest.of(from / size, size);
         log.info("Get all categories from={}, size={}", from, size);
         return categoryMapper.toCategoryDto(categoryRepository.findAll(pageable));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Category getCategoryById(Long catId) {
+        return checkIfCategoryExistsAndGet(catId);
     }
 
 
