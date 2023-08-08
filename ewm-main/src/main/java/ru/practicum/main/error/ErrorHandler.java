@@ -1,6 +1,7 @@
 package ru.practicum.main.error;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -11,6 +12,7 @@ import ru.practicum.main.error.exception.EntityNotFoundException;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -20,28 +22,32 @@ import java.util.stream.Collectors;
 public class ErrorHandler {
 
     private static final String INVALID_DATA_REASON = "Incorrectly made request";
-    private static final String NOT_FOUND_REASON = "The required object was not found.";
+    private static final String NOT_FOUND_REASON = "The required object was not found";
+    private static final String INTEGRITY_CONSTRAINT_REASON = "Integrity constraint has been violated";
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse incorrectRequestHandle(final ConstraintViolationException e) {
+    public ApiError incorrectRequestHandle(final ConstraintViolationException e) {
         Set<ConstraintViolation<?>> violations = e.getConstraintViolations();
         StringBuilder errorMessage = new StringBuilder();
 
-        for (ConstraintViolation<?> violation : violations) {
-            errorMessage.append("Field: ").append(violation.getPropertyPath().toString())
-                    .append(". Error: ").append(violation.getMessage())
-                    .append(". Value: ").append(violation.getInvalidValue()).append("\n");
-        }
+        violations.forEach(v -> errorMessage.append("Field: ").append(v.getPropertyPath().toString())
+                .append(". Error: ").append(v.getMessage())
+                .append(". Value: ").append(v.getInvalidValue()).append("\n"));
 
         log.warn("Validation error. {}. {}", INVALID_DATA_REASON, errorMessage);
 
-        return new ErrorResponse(HttpStatus.BAD_REQUEST.toString(), INVALID_DATA_REASON, errorMessage.toString());
+        return new ApiError(
+                HttpStatus.BAD_REQUEST.toString(),
+                INVALID_DATA_REASON,
+                errorMessage.toString(),
+                getStackTrace(e)
+        );
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse invalidArgumentHandle(final MethodArgumentNotValidException e) {
+    public ApiError invalidArgumentHandle(final MethodArgumentNotValidException e) {
         List<FieldError> fieldErrors = e.getBindingResult().getFieldErrors();
         String errorMessage = fieldErrors.stream()
                 .map(error -> String.format("Field: %s. Error: %s. Value: %s",
@@ -50,14 +56,43 @@ public class ErrorHandler {
 
         log.warn("Validation error. {}. {}", INVALID_DATA_REASON, errorMessage);
 
-        return new ErrorResponse(HttpStatus.BAD_REQUEST.toString(), INVALID_DATA_REASON, errorMessage);
+        return new ApiError(
+                HttpStatus.BAD_REQUEST.toString(),
+                INVALID_DATA_REASON,
+                errorMessage,
+                getStackTrace(e)
+        );
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse notFoundHandle(final EntityNotFoundException e) {
+    public ApiError notFoundHandle(final EntityNotFoundException e) {
         log.warn("{}. {}", NOT_FOUND_REASON, e.getMessage());
-        return new ErrorResponse(HttpStatus.NOT_FOUND.toString(), NOT_FOUND_REASON, e.getMessage());
+        return new ApiError(
+                HttpStatus.NOT_FOUND.toString(),
+                NOT_FOUND_REASON,
+                e.getMessage(),
+                getStackTrace(e)
+        );
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ApiError dbErrorHandle(final DataIntegrityViolationException e) {
+        log.warn("{}. {}", INTEGRITY_CONSTRAINT_REASON, e.getMessage());
+        return new ApiError(
+                HttpStatus.CONFLICT.toString(),
+                INTEGRITY_CONSTRAINT_REASON,
+                e.getMessage(),
+                getStackTrace(e)
+        );
+    }
+
+
+    private List<String> getStackTrace(Throwable e) {
+        return Arrays.stream(e.getStackTrace())
+                .map(StackTraceElement::toString)
+                .collect(Collectors.toList());
     }
 
 }
