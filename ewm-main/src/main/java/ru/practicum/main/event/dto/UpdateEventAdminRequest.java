@@ -21,7 +21,7 @@ import static ru.practicum.main.util.Formats.DATE_PATTERN;
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class UpdateEventUserRequest {
+public class UpdateEventAdminRequest {
 
     @Size(min = 20, max = 2000, message = "The event annotation must be from 20 to 2000 characters")
     String annotation;
@@ -31,7 +31,7 @@ public class UpdateEventUserRequest {
     @Size(min = 20, max = 7000, message = "The event description must be from 20 to 7000 characters")
     String description;
 
-    @ValidEventDate
+    @ValidEventDate(isAdmin = true)
     @JsonFormat(pattern = DATE_PATTERN)
     LocalDateTime eventDate;
 

@@ -3,6 +3,7 @@ package ru.practicum.main.error;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -26,6 +27,7 @@ public class ErrorHandler {
     private static final String NOT_FOUND_REASON = "The required object was not found";
     private static final String INTEGRITY_CONSTRAINT_REASON = "Integrity constraint has been violated";
     private static final String FORBIDDEN_REASON = "For the requested operation the conditions are not met";
+    private static final String INVALID_BODY_REASON = "Invalid request body";
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -40,7 +42,7 @@ public class ErrorHandler {
         log.warn("Validation error. {}. {}", INVALID_DATA_REASON, errorMessage);
 
         return new ApiError(
-                HttpStatus.BAD_REQUEST.toString(),
+                HttpStatus.BAD_REQUEST.getReasonPhrase(),
                 INVALID_DATA_REASON,
                 errorMessage.toString(),
                 getStackTrace(e)
@@ -59,7 +61,7 @@ public class ErrorHandler {
         log.warn("Validation error. {}. {}", INVALID_DATA_REASON, errorMessage);
 
         return new ApiError(
-                HttpStatus.BAD_REQUEST.toString(),
+                HttpStatus.BAD_REQUEST.getReasonPhrase(),
                 INVALID_DATA_REASON,
                 errorMessage,
                 getStackTrace(e)
@@ -71,7 +73,7 @@ public class ErrorHandler {
     public ApiError notFoundHandle(final EntityNotFoundException e) {
         log.warn("{}. {}", NOT_FOUND_REASON, e.getMessage());
         return new ApiError(
-                HttpStatus.NOT_FOUND.toString(),
+                HttpStatus.NOT_FOUND.getReasonPhrase(),
                 NOT_FOUND_REASON,
                 e.getMessage(),
                 getStackTrace(e)
@@ -83,7 +85,7 @@ public class ErrorHandler {
     public ApiError dbErrorHandle(final DataIntegrityViolationException e) {
         log.warn("{}. {}", INTEGRITY_CONSTRAINT_REASON, e.getMessage());
         return new ApiError(
-                HttpStatus.CONFLICT.toString(),
+                HttpStatus.CONFLICT.getReasonPhrase(),
                 INTEGRITY_CONSTRAINT_REASON,
                 e.getMessage(),
                 getStackTrace(e)
@@ -91,12 +93,24 @@ public class ErrorHandler {
     }
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ResponseStatus(HttpStatus.CONFLICT)
     public ApiError forbiddenHandle(final ForbiddenException e) {
         log.warn("{}. {}", FORBIDDEN_REASON, e.getMessage());
         return new ApiError(
-                HttpStatus.FORBIDDEN.toString(),
+                HttpStatus.FORBIDDEN.getReasonPhrase(),
                 FORBIDDEN_REASON,
+                e.getMessage(),
+                getStackTrace(e)
+        );
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ApiError forbiddenHandle(final HttpMessageNotReadableException e) {
+        log.warn("{}. {}", INVALID_BODY_REASON, e.getMessage());
+        return new ApiError(
+                HttpStatus.CONFLICT.getReasonPhrase(),
+                INVALID_BODY_REASON,
                 e.getMessage(),
                 getStackTrace(e)
         );

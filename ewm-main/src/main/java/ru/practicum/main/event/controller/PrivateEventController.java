@@ -36,11 +36,16 @@ public class PrivateEventController {
         return eventService.getAllByInitiatorId(userId, from, size);
     }
 
+    @GetMapping("/{eventId}")
+    public EventFullDto getEventByIdAndInitiatorId(@PathVariable Long eventId, @PathVariable Long userId) {
+        return eventService.getEventByIdAndInitiatorId(eventId, userId);
+    }
+
     @PatchMapping("/{eventId}")
-    public EventFullDto update(@Valid @RequestBody UpdateEventUserRequest updateEvent,
-                               @PathVariable Long userId,
-                               @PathVariable Long eventId) {
-        return eventService.update(updateEvent, userId, eventId);
+    public EventFullDto updateByInitiator(@Valid @RequestBody UpdateEventUserRequest updatedEvent,
+                                          @PathVariable Long eventId,
+                                          @PathVariable Long userId) {
+        return eventService.updateByInitiator(updatedEvent, eventId, userId);
 
     }
 

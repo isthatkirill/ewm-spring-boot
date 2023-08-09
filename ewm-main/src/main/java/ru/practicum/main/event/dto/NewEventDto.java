@@ -3,7 +3,8 @@ package ru.practicum.main.event.dto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import ru.practicum.main.event.validator.ValidEventDate;
+import ru.practicum.main.event.location.dto.LocationDto;
+import ru.practicum.main.event.validator.annotation.ValidEventDate;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
