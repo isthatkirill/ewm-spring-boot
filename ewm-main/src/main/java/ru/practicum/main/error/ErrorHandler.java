@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.practicum.main.error.exception.EntityNotFoundException;
+import ru.practicum.main.error.exception.ForbiddenException;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
@@ -24,6 +25,7 @@ public class ErrorHandler {
     private static final String INVALID_DATA_REASON = "Incorrectly made request";
     private static final String NOT_FOUND_REASON = "The required object was not found";
     private static final String INTEGRITY_CONSTRAINT_REASON = "Integrity constraint has been violated";
+    private static final String FORBIDDEN_REASON = "For the requested operation the conditions are not met";
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -88,6 +90,17 @@ public class ErrorHandler {
         );
     }
 
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ApiError forbiddenHandle(final ForbiddenException e) {
+        log.warn("{}. {}", FORBIDDEN_REASON, e.getMessage());
+        return new ApiError(
+                HttpStatus.FORBIDDEN.toString(),
+                FORBIDDEN_REASON,
+                e.getMessage(),
+                getStackTrace(e)
+        );
+    }
 
     private List<String> getStackTrace(Throwable e) {
         return Arrays.stream(e.getStackTrace())

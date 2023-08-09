@@ -9,7 +9,7 @@ public class EventDateValidator implements ConstraintValidator<ValidEventDate, L
     @Override
     public boolean isValid(LocalDateTime eventDate, ConstraintValidatorContext context) {
         if (eventDate == null) {
-            return false;
+            return true; //validates by @NotNull (needs for patching)
         }
 
         LocalDateTime currentTime = LocalDateTime.now();

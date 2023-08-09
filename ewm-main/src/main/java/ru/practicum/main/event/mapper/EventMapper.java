@@ -5,6 +5,7 @@ import org.mapstruct.Mapping;
 import ru.practicum.main.category.mapper.CategoryMapper;
 import ru.practicum.main.category.model.Category;
 import ru.practicum.main.event.dto.EventFullDto;
+import ru.practicum.main.event.dto.EventShortDto;
 import ru.practicum.main.event.dto.NewEventDto;
 import ru.practicum.main.event.model.Event;
 import ru.practicum.main.event.model.Location;
@@ -25,5 +26,7 @@ public interface EventMapper {
     Event toEvent(NewEventDto newEventDto, User initiator, Category category, Location location, EventState state);
 
     EventFullDto toEventFullDto(Event event, Long confirmedRequests, Long views);
+
+    EventShortDto toEventShortDto(Event event, Long confirmedRequests, Long views);
 
 }

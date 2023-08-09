@@ -5,10 +5,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.main.event.dto.EventFullDto;
+import ru.practicum.main.event.dto.EventShortDto;
 import ru.practicum.main.event.dto.NewEventDto;
+import ru.practicum.main.event.dto.UpdateEventUserRequest;
 import ru.practicum.main.event.service.EventService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
+import java.util.List;
 
 @Validated
 @RestController
@@ -22,6 +27,21 @@ public class PrivateEventController {
     @ResponseStatus(HttpStatus.CREATED)
     public EventFullDto create(@Valid @RequestBody NewEventDto newEventDto, @PathVariable Long userId) {
         return eventService.create(newEventDto, userId);
+    }
+
+    @GetMapping
+    public List<EventShortDto> getAllByInitiatorId(@PathVariable Long userId,
+                                                   @RequestParam(defaultValue = "0", required = false) @PositiveOrZero Integer from,
+                                                   @RequestParam(defaultValue = "10", required = false) @Positive Integer size) {
+        return eventService.getAllByInitiatorId(userId, from, size);
+    }
+
+    @PatchMapping("/{eventId}")
+    public EventFullDto update(@Valid @RequestBody UpdateEventUserRequest updateEvent,
+                               @PathVariable Long userId,
+                               @PathVariable Long eventId) {
+        return eventService.update(updateEvent, userId, eventId);
+
     }
 
 
