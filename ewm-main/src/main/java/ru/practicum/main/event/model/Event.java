@@ -1,6 +1,9 @@
 package ru.practicum.main.event.model;
 
 import lombok.*;
+import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import ru.practicum.main.category.model.Category;
 import ru.practicum.main.event.location.model.Location;
 import ru.practicum.main.event.model.enums.EventState;
@@ -15,6 +18,7 @@ import java.time.LocalDateTime;
 @Table(name = "events")
 @Builder
 @ToString
+@FieldDefaults(level = AccessLevel.PRIVATE)
 @NoArgsConstructor
 @AllArgsConstructor
 public class Event {
@@ -59,6 +63,7 @@ public class Event {
     Location location;
 
     @ManyToOne
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "initiator_id", referencedColumnName = "id")
     User initiator;
 

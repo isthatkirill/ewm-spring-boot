@@ -3,6 +3,7 @@ package ru.practicum.main.event.service;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.RequestParam;
 import ru.practicum.main.event.dto.*;
+import ru.practicum.main.event.model.Event;
 import ru.practicum.main.event.model.enums.EventSort;
 import ru.practicum.main.event.model.enums.EventState;
 
@@ -34,5 +35,9 @@ public interface EventService {
     List<EventShortDto> getAllEventsByPublic(String text, List<Long> categories, Boolean paid, LocalDateTime rangeStart,
                                             LocalDateTime rangeEnd, Boolean onlyAvailable, EventSort sort, Integer from,
                                             Integer size, HttpServletRequest request);
+
+    Event getById(Long eventId);
+
+    Event checkIfOwnEventExistsAndGet(Long eventId, Long userId);
 
 }

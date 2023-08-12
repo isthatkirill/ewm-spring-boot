@@ -8,6 +8,10 @@ import ru.practicum.main.event.dto.EventFullDto;
 import ru.practicum.main.event.dto.EventShortDto;
 import ru.practicum.main.event.dto.NewEventDto;
 import ru.practicum.main.event.dto.UpdateEventUserRequest;
+import ru.practicum.main.event.request.dto.EventRequestStatusUpdateRequest;
+import ru.practicum.main.event.request.dto.EventRequestStatusUpdateResult;
+import ru.practicum.main.event.request.dto.ParticipationRequestDto;
+import ru.practicum.main.event.request.service.RequestService;
 import ru.practicum.main.event.service.EventService;
 
 import javax.validation.Valid;
@@ -22,6 +26,7 @@ import java.util.List;
 public class PrivateEventController {
 
     private final EventService eventService;
+    private final RequestService requestService;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -46,7 +51,18 @@ public class PrivateEventController {
                                           @PathVariable Long eventId,
                                           @PathVariable Long userId) {
         return eventService.updateByInitiator(updatedEvent, eventId, userId);
+    }
 
+    @PatchMapping("/{eventId}/requests")
+    public EventRequestStatusUpdateResult processRequestsByInitiator(@RequestBody @Valid EventRequestStatusUpdateRequest updateRequest,
+                                                                     @PathVariable Long userId,
+                                                                     @PathVariable Long eventId) {
+        return requestService.processRequestsByInitiator(updateRequest, userId, eventId);
+    }
+
+    @GetMapping("/{eventId}/requests")
+    public List<ParticipationRequestDto> getRequestsByInitiator(@PathVariable Long userId, @PathVariable Long eventId) {
+        return requestService.getRequestsByInitiator(userId, eventId);
     }
 
 

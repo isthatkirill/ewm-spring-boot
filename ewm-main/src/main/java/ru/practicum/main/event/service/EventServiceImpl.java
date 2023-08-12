@@ -66,9 +66,9 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public EventFullDto updateByInitiator(UpdateEventUserRequest updatedEvent, Long userId, Long eventId) {
+    public EventFullDto updateByInitiator(UpdateEventUserRequest updatedEvent, Long eventId, Long userId) {
         userService.getById(userId);
-        Event event = checkIfEventExistsAndGet(eventId, userId);
+        Event event = checkIfOwnEventExistsAndGet(eventId, userId);
         checkIfUserCanUpdate(event);
 
         if (updatedEvent.getEventDate() != null) event.setEventDate(updatedEvent.getEventDate());
@@ -104,7 +104,10 @@ public class EventServiceImpl implements EventService {
         if (updatedEvent.getEventDate() != null) event.setEventDate(updatedEvent.getEventDate());
         if (updatedEvent.getAnnotation() != null) event.setAnnotation(updatedEvent.getAnnotation());
         if (updatedEvent.getPaid() != null) event.setPaid(updatedEvent.getPaid());
-        if (updatedEvent.getParticipantLimit() != null) event.setParticipantLimit(updatedEvent.getParticipantLimit()); //TODO
+        if (updatedEvent.getParticipantLimit() != null) {
+            checkNewLimit(updatedEvent.getParticipantLimit(), statService.getConfirmedRequests(eventId));
+            event.setParticipantLimit(updatedEvent.getParticipantLimit());
+        }
         if (updatedEvent.getRequestModeration() != null) event.setRequestModeration(updatedEvent.getRequestModeration());
         if (updatedEvent.getDescription() != null) event.setDescription(updatedEvent.getDescription());
         if (updatedEvent.getCategory() != null) event.setCategory(categoryService.getCategoryById(updatedEvent.getCategory()));
@@ -180,35 +183,47 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional(readOnly = true)
     public EventFullDto getEventByIdAndInitiatorId(Long eventId, Long userId) {
-        return mapToFullDtoWithViewsAndRequests(checkIfEventExistsAndGet(eventId, userId));
+        return mapToFullDtoWithViewsAndRequests(checkIfOwnEventExistsAndGet(eventId, userId));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Event getById(Long eventId) {
+        return checkIfEventExistsAndGet(eventId);
+    }
+
+    @Override
+    public Event checkIfOwnEventExistsAndGet(Long eventId, Long userId) {
+        return eventRepository.findEventByIdAndInitiatorId(eventId, userId)
+                .orElseThrow(() -> new EntityNotFoundException(Event.class, eventId));
     }
 
     private List<EventShortDto> mapToShortDtoWithViewsAndRequests(List<Event> events) {
-
-        //views and requests processing
-        //TODO add processing views and confirmedRequests
         Map<Long, Long> views = statService.getViews(events);
 
         return events.stream()
                 .map(e -> eventMapper.toEventShortDto(
                         e,
-                        0L,
+                        statService.getConfirmedRequests(e.getId()),
                         views.getOrDefault(e.getId(), 0L)))
                 .collect(Collectors.toList());
     }
 
     private List<EventFullDto> mapToFullDtoWithViewsAndRequests(List<Event> events) {
-
-        //views and requests processing
-        //TODO add processing views and confirmedRequests
         Map<Long, Long> views = statService.getViews(events);
 
         return events.stream()
                 .map(e -> eventMapper.toEventFullDto(
                         e,
-                        0L,
+                        statService.getConfirmedRequests(e.getId()),
                         views.getOrDefault(e.getId(), 0L)))
                 .collect(Collectors.toList());
+    }
+
+    private void checkNewLimit(Integer newLimit, Long confirmedReq) {
+        if (newLimit != 0 && newLimit < confirmedReq) {
+            throw new ForbiddenException("New limit cannot be less than the number of confirmed requests");
+        }
     }
 
     private EventFullDto mapToFullDtoWithViewsAndRequests(Event event) {
@@ -231,11 +246,6 @@ public class EventServiceImpl implements EventService {
 
     private void checkIfAdminCanUpdate(Event event) {
         if (!event.getState().equals(EventState.PENDING)) throw new ForbiddenException("Cannot publish the event because it's not in the right state: PUBLISHED");
-    }
-
-    private Event checkIfEventExistsAndGet(Long eventId, Long userId) {
-        return eventRepository.findEventByIdAndInitiatorId(eventId, userId)
-                .orElseThrow(() -> new EntityNotFoundException(Event.class, eventId));
     }
 
     private Event checkIfEventExistsAndGet(Long eventId) {
