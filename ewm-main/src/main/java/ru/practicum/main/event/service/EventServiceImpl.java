@@ -16,13 +16,18 @@ import ru.practicum.main.event.location.model.Location;
 import ru.practicum.main.event.location.repository.LocationRepository;
 import ru.practicum.main.event.mapper.EventMapper;
 import ru.practicum.main.event.model.Event;
+import ru.practicum.main.event.model.enums.EventSort;
 import ru.practicum.main.event.model.enums.EventState;
 import ru.practicum.main.event.repository.EventRepository;
 import ru.practicum.main.user.model.User;
 import ru.practicum.main.user.service.UserService;
 
+import javax.servlet.http.HttpServletRequest;
+import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -36,6 +41,7 @@ public class EventServiceImpl implements EventService {
     private final LocationRepository locationRepository;
     private final EventMapper eventMapper;
     private final EventRepository eventRepository;
+    private final StatService statService;
 
     @Override
     @Transactional
@@ -45,7 +51,7 @@ public class EventServiceImpl implements EventService {
         Location location = findLocation(locationMapper.toLocation(newEventDto.getLocation()));
 
         Event event = eventMapper.toEvent(newEventDto, initiator, category, location, EventState.PENDING);
-        log.info("Create new event with title={} by user with id={}", event.getTitle(), userId);
+        log.info("Create new event --> {}", event);
 
         return mapToFullDtoWithViewsAndRequests(eventRepository.save(event));
     }
@@ -59,6 +65,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional
     public EventFullDto updateByInitiator(UpdateEventUserRequest updatedEvent, Long userId, Long eventId) {
         userService.getById(userId);
         Event event = checkIfEventExistsAndGet(eventId, userId);
@@ -89,6 +96,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional
     public EventFullDto updateByAdmin(UpdateEventAdminRequest updatedEvent, Long eventId) {
         Event event = checkIfEventExistsAndGet(eventId);
         checkIfAdminCanUpdate(event);
@@ -106,6 +114,7 @@ public class EventServiceImpl implements EventService {
             switch (updatedEvent.getStateAction()) {
                 case PUBLISH_EVENT:
                     event.setState(EventState.PUBLISHED);
+                    event.setPublishedOn(LocalDateTime.now());
                     break;
                 case REJECT_EVENT:
                     event.setState(EventState.CANCELED);
@@ -118,6 +127,58 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public List<EventFullDto> getAllEventsByAdmin(List<Long> users, List<EventState> states, List<Long> categories,
+                                                  LocalDateTime rangeStart, LocalDateTime rangeEnd, Integer from, Integer size) {
+        log.info("Get events by admin with params: users={}, states={}, categories={}, start={}, end={}, from={}, size={}",
+                users, states, categories, rangeStart, rangeEnd, from, size);
+        return mapToFullDtoWithViewsAndRequests(
+                eventRepository.findEventsByAdmin(users, states, categories, rangeStart, rangeEnd, from, size)
+        );
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public EventFullDto getEventByPublic(Long eventId, HttpServletRequest request) {
+        Event event = checkIfPublishedEventExistsAndGet(eventId);
+        log.info("Get event with id={} by public", eventId);
+        statService.hit(request);
+        return mapToFullDtoWithViewsAndRequests(event);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<EventShortDto> getAllEventsByPublic(String text, List<Long> categories, Boolean paid, LocalDateTime rangeStart,
+                                                   LocalDateTime rangeEnd, Boolean onlyAvailable, EventSort sort, Integer from,
+                                                   Integer size, HttpServletRequest request) {
+
+        checkIfStartBeforeEnd(rangeStart, rangeEnd);
+
+        List<Event> events = eventRepository.findEventsByPublic(text, categories, paid, rangeStart, rangeEnd, from, size);
+        List<EventShortDto> eventsWithViewsAndRequests = mapToShortDtoWithViewsAndRequests(events);
+
+        if (sort != null) {
+            switch (sort) {
+                case VIEWS:
+                    eventsWithViewsAndRequests.sort(Comparator.comparing(EventShortDto::getViews));
+                    break;
+                case EVENT_DATE:
+                    eventsWithViewsAndRequests.sort(Comparator.comparing(EventShortDto::getEventDate));
+                    break;
+            }
+        }
+
+        log.info("Get events by public with params: text={}, categories={}, paid={}, start={}, end={}, onlyAvailable={}," +
+                "sort={}, from={}, size={}", text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size);
+
+        statService.hit(request);
+
+        return eventsWithViewsAndRequests; //TODO ADD CONFIRMED REQ
+    }
+
+
+    @Override
+    @Transactional(readOnly = true)
     public EventFullDto getEventByIdAndInitiatorId(Long eventId, Long userId) {
         return mapToFullDtoWithViewsAndRequests(checkIfEventExistsAndGet(eventId, userId));
     }
@@ -126,9 +187,13 @@ public class EventServiceImpl implements EventService {
 
         //views and requests processing
         //TODO add processing views and confirmedRequests
+        Map<Long, Long> views = statService.getViews(events);
 
         return events.stream()
-                .map(e -> eventMapper.toEventShortDto(e, 0L, 0L))
+                .map(e -> eventMapper.toEventShortDto(
+                        e,
+                        0L,
+                        views.getOrDefault(e.getId(), 0L)))
                 .collect(Collectors.toList());
     }
 
@@ -136,9 +201,13 @@ public class EventServiceImpl implements EventService {
 
         //views and requests processing
         //TODO add processing views and confirmedRequests
+        Map<Long, Long> views = statService.getViews(events);
 
         return events.stream()
-                .map(e -> eventMapper.toEventFullDto(e, 0L, 0L))
+                .map(e -> eventMapper.toEventFullDto(
+                        e,
+                        0L,
+                        views.getOrDefault(e.getId(), 0L)))
                 .collect(Collectors.toList());
     }
 
@@ -148,6 +217,12 @@ public class EventServiceImpl implements EventService {
 
     private EventShortDto mapToShortDtoWithViewsAndRequests(Event event) {
         return mapToShortDtoWithViewsAndRequests(Collections.singletonList(event)).get(0);
+    }
+
+    private void checkIfStartBeforeEnd(LocalDateTime start, LocalDateTime end) {
+        if (start != null && end != null && end.isBefore(start)) {
+            throw new IllegalStateException("Incorrect time interval. The start param should be earlier than the end param");
+        }
     }
 
     private void checkIfUserCanUpdate(Event event) {
@@ -165,6 +240,11 @@ public class EventServiceImpl implements EventService {
 
     private Event checkIfEventExistsAndGet(Long eventId) {
         return eventRepository.findById(eventId)
+                .orElseThrow(() -> new EntityNotFoundException(Event.class, eventId));
+    }
+
+    private Event checkIfPublishedEventExistsAndGet(Long eventId) {
+        return eventRepository.getEventIfPublished(eventId)
                 .orElseThrow(() -> new EntityNotFoundException(Event.class, eventId));
     }
 

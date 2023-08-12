@@ -28,6 +28,7 @@ public class ErrorHandler {
     private static final String INTEGRITY_CONSTRAINT_REASON = "Integrity constraint has been violated";
     private static final String FORBIDDEN_REASON = "For the requested operation the conditions are not met";
     private static final String INVALID_BODY_REASON = "Invalid request body";
+    private static final String BAD_REQUEST_REASON = "Incorrectly made request";
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -106,11 +107,23 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
-    public ApiError forbiddenHandle(final HttpMessageNotReadableException e) {
+    public ApiError invalidBodyHandle(final HttpMessageNotReadableException e) {
         log.warn("{}. {}", INVALID_BODY_REASON, e.getMessage());
         return new ApiError(
                 HttpStatus.CONFLICT.getReasonPhrase(),
                 INVALID_BODY_REASON,
+                e.getMessage(),
+                getStackTrace(e)
+        );
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ApiError badRequestHandle(final IllegalStateException e) {
+        log.warn("{}. {}", BAD_REQUEST_REASON, e.getMessage());
+        return new ApiError(
+                HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                BAD_REQUEST_REASON,
                 e.getMessage(),
                 getStackTrace(e)
         );
@@ -121,5 +134,7 @@ public class ErrorHandler {
                 .map(StackTraceElement::toString)
                 .collect(Collectors.toList());
     }
+
+
 
 }
