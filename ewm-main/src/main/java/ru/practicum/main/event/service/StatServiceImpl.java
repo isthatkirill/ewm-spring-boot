@@ -6,7 +6,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.main.event.model.Event;
-import ru.practicum.main.event.request.repository.RequestRepository;
+import ru.practicum.main.request.repository.RequestRepository;
 import ru.practicum.stats.StatClient;
 import ru.practicum.stats.dto.EndpointHitDto;
 import ru.practicum.stats.dto.ViewStatsDto;
@@ -82,4 +82,5 @@ public class StatServiceImpl implements StatService {
                 .ip(request.getRemoteAddr())
                 .build();
     }
+
 }

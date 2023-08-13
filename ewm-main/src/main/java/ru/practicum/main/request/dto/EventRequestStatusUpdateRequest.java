@@ -1,8 +1,8 @@
-package ru.practicum.main.event.request.dto;
+package ru.practicum.main.request.dto;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import ru.practicum.main.event.request.model.enums.RequestProcessedState;
+import ru.practicum.main.request.model.enums.RequestProcessedState;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;

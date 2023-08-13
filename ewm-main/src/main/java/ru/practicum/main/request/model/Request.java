@@ -1,10 +1,10 @@
-package ru.practicum.main.event.request.model;
+package ru.practicum.main.request.model;
 
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import ru.practicum.main.event.model.Event;
-import ru.practicum.main.event.request.model.enums.RequestState;
+import ru.practicum.main.request.model.enums.RequestState;
 import ru.practicum.main.user.model.User;
 
 import javax.persistence.*;

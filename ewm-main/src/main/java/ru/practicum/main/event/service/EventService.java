@@ -1,19 +1,13 @@
 package ru.practicum.main.event.service;
 
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.web.bind.annotation.RequestParam;
 import ru.practicum.main.event.dto.*;
 import ru.practicum.main.event.model.Event;
 import ru.practicum.main.event.model.enums.EventSort;
 import ru.practicum.main.event.model.enums.EventState;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.constraints.Positive;
-import javax.validation.constraints.PositiveOrZero;
 import java.time.LocalDateTime;
 import java.util.List;
-
-import static ru.practicum.main.util.Formats.DATE_PATTERN;
 
 public interface EventService {
 

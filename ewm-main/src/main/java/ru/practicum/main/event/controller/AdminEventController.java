@@ -43,5 +43,4 @@ public class AdminEventController {
         return eventService.getAllEventsByAdmin(users, states, categories, rangeStart, rangeEnd, from, size);
     }
 
-
 }

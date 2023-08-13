@@ -1,9 +1,9 @@
-package ru.practicum.main.event.request.mapper;
+package ru.practicum.main.request.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import ru.practicum.main.event.request.dto.ParticipationRequestDto;
-import ru.practicum.main.event.request.model.Request;
+import ru.practicum.main.request.dto.ParticipationRequestDto;
+import ru.practicum.main.request.model.Request;
 
 import java.util.List;
 

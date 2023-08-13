@@ -1,7 +1,5 @@
 package ru.practicum.main.event.repository;
 
-import org.springframework.data.domain.Pageable;
-import ru.practicum.main.event.dto.EventFullDto;
 import ru.practicum.main.event.model.Event;
 import ru.practicum.main.event.model.enums.EventState;
 
@@ -71,8 +69,5 @@ public class CustomEventRepositoryImpl implements CustomEventRepository {
                 .setMaxResults(size)
                 .getResultList();
     }
-
-
-
 
 }

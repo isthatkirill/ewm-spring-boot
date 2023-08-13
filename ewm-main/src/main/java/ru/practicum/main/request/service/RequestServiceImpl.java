@@ -1,4 +1,4 @@
-package ru.practicum.main.event.request.service;
+package ru.practicum.main.request.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -8,13 +8,13 @@ import ru.practicum.main.error.exception.EntityNotFoundException;
 import ru.practicum.main.error.exception.ForbiddenException;
 import ru.practicum.main.event.model.Event;
 import ru.practicum.main.event.model.enums.EventState;
-import ru.practicum.main.event.request.dto.EventRequestStatusUpdateRequest;
-import ru.practicum.main.event.request.dto.EventRequestStatusUpdateResult;
-import ru.practicum.main.event.request.dto.ParticipationRequestDto;
-import ru.practicum.main.event.request.mapper.RequestMapper;
-import ru.practicum.main.event.request.model.Request;
-import ru.practicum.main.event.request.model.enums.RequestState;
-import ru.practicum.main.event.request.repository.RequestRepository;
+import ru.practicum.main.request.dto.EventRequestStatusUpdateRequest;
+import ru.practicum.main.request.dto.EventRequestStatusUpdateResult;
+import ru.practicum.main.request.dto.ParticipationRequestDto;
+import ru.practicum.main.request.mapper.RequestMapper;
+import ru.practicum.main.request.model.Request;
+import ru.practicum.main.request.model.enums.RequestState;
+import ru.practicum.main.request.repository.RequestRepository;
 import ru.practicum.main.event.service.EventService;
 import ru.practicum.main.event.service.StatService;
 import ru.practicum.main.user.model.User;

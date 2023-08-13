@@ -6,7 +6,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.main.event.dto.EventFullDto;
 import ru.practicum.main.event.dto.EventShortDto;
-import ru.practicum.main.event.model.Event;
 import ru.practicum.main.event.model.enums.EventSort;
 import ru.practicum.main.event.service.EventService;
 
@@ -45,6 +44,5 @@ public class PublicEventController {
         return eventService.getAllEventsByPublic(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort,
                 from, size, request);
     }
-
 
 }

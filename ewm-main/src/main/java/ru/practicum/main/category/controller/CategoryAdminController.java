@@ -36,6 +36,5 @@ public class CategoryAdminController {
         categoryService.delete(catId);
     }
 
-
 }
 

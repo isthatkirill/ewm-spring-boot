@@ -29,6 +29,4 @@ public class CategoryPublicController {
         return categoryService.getAll(from, size);
     }
 
-
-
 }
