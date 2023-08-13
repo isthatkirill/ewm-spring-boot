@@ -11,23 +11,20 @@ import ru.practicum.main.category.service.CategoryService;
 import ru.practicum.main.error.exception.EntityNotFoundException;
 import ru.practicum.main.error.exception.ForbiddenException;
 import ru.practicum.main.event.dto.*;
-import ru.practicum.main.location.mapper.LocationMapper;
-import ru.practicum.main.location.model.Location;
-import ru.practicum.main.location.repository.LocationRepository;
 import ru.practicum.main.event.mapper.EventMapper;
 import ru.practicum.main.event.model.Event;
 import ru.practicum.main.event.model.enums.EventSort;
 import ru.practicum.main.event.model.enums.EventState;
 import ru.practicum.main.event.repository.EventRepository;
+import ru.practicum.main.location.mapper.LocationMapper;
+import ru.practicum.main.location.model.Location;
+import ru.practicum.main.location.repository.LocationRepository;
 import ru.practicum.main.user.model.User;
 import ru.practicum.main.user.service.UserService;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -76,10 +73,13 @@ public class EventServiceImpl implements EventService {
         if (updatedEvent.getAnnotation() != null) event.setAnnotation(updatedEvent.getAnnotation());
         if (updatedEvent.getParticipantLimit() != null) event.setParticipantLimit(updatedEvent.getParticipantLimit());
         if (updatedEvent.getDescription() != null) event.setDescription(updatedEvent.getDescription());
-        if (updatedEvent.getRequestModeration() != null) event.setRequestModeration(updatedEvent.getRequestModeration());
-        if (updatedEvent.getCategory() != null) event.setCategory(categoryService.getCategoryById(updatedEvent.getCategory()));
+        if (updatedEvent.getRequestModeration() != null)
+            event.setRequestModeration(updatedEvent.getRequestModeration());
+        if (updatedEvent.getCategory() != null)
+            event.setCategory(categoryService.getCategoryById(updatedEvent.getCategory()));
         if (updatedEvent.getTitle() != null) event.setTitle(updatedEvent.getTitle());
-        if (updatedEvent.getLocation() != null) event.setLocation(findLocation(locationMapper.toLocation(updatedEvent.getLocation())));
+        if (updatedEvent.getLocation() != null)
+            event.setLocation(findLocation(locationMapper.toLocation(updatedEvent.getLocation())));
         if (updatedEvent.getStateAction() != null) {
             switch (updatedEvent.getStateAction()) {
                 case CANCEL_REVIEW:
@@ -108,10 +108,13 @@ public class EventServiceImpl implements EventService {
             checkNewLimit(updatedEvent.getParticipantLimit(), statService.getConfirmedRequests(eventId));
             event.setParticipantLimit(updatedEvent.getParticipantLimit());
         }
-        if (updatedEvent.getRequestModeration() != null) event.setRequestModeration(updatedEvent.getRequestModeration());
+        if (updatedEvent.getRequestModeration() != null)
+            event.setRequestModeration(updatedEvent.getRequestModeration());
         if (updatedEvent.getDescription() != null) event.setDescription(updatedEvent.getDescription());
-        if (updatedEvent.getCategory() != null) event.setCategory(categoryService.getCategoryById(updatedEvent.getCategory()));
-        if (updatedEvent.getLocation() != null) event.setLocation(findLocation(locationMapper.toLocation(updatedEvent.getLocation())));
+        if (updatedEvent.getCategory() != null)
+            event.setCategory(categoryService.getCategoryById(updatedEvent.getCategory()));
+        if (updatedEvent.getLocation() != null)
+            event.setLocation(findLocation(locationMapper.toLocation(updatedEvent.getLocation())));
         if (updatedEvent.getTitle() != null) event.setTitle(updatedEvent.getTitle());
         if (updatedEvent.getStateAction() != null) {
             switch (updatedEvent.getStateAction()) {
@@ -152,13 +155,23 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional(readOnly = true)
     public List<EventShortDto> getAllEventsByPublic(String text, List<Long> categories, Boolean paid, LocalDateTime rangeStart,
-                                                   LocalDateTime rangeEnd, Boolean onlyAvailable, EventSort sort, Integer from,
-                                                   Integer size, HttpServletRequest request) {
+                                                    LocalDateTime rangeEnd, Boolean onlyAvailable, EventSort sort, Integer from,
+                                                    Integer size, HttpServletRequest request) {
 
         checkIfStartBeforeEnd(rangeStart, rangeEnd);
 
         List<Event> events = eventRepository.findEventsByPublic(text, categories, paid, rangeStart, rangeEnd, from, size);
+
+        Map<Long, Integer> eventLimits = new HashMap<>();
+        events.forEach(e -> eventLimits.put(e.getId(), e.getParticipantLimit()));
+
         List<EventShortDto> eventsWithViewsAndRequests = mapToShortDtoWithViewsAndRequests(events);
+
+        if (onlyAvailable) {
+            eventsWithViewsAndRequests = eventsWithViewsAndRequests.stream()
+                    .filter(e -> eventLimits.get(e.getId()) == 0 || eventLimits.get(e.getId()) > e.getConfirmedRequests())
+                    .collect(Collectors.toList());
+        }
 
         if (sort != null) {
             switch (sort) {
@@ -176,9 +189,8 @@ public class EventServiceImpl implements EventService {
 
         statService.hit(request);
 
-        return eventsWithViewsAndRequests; //TODO ADD CONFIRMED REQ
+        return eventsWithViewsAndRequests;
     }
-
 
     @Override
     @Transactional(readOnly = true)
@@ -241,11 +253,13 @@ public class EventServiceImpl implements EventService {
     }
 
     private void checkIfUserCanUpdate(Event event) {
-        if (event.getState().equals(EventState.PUBLISHED)) throw new ForbiddenException("Only pending or canceled events can be changed");
+        if (event.getState().equals(EventState.PUBLISHED))
+            throw new ForbiddenException("Only pending or canceled events can be changed");
     }
 
     private void checkIfAdminCanUpdate(Event event) {
-        if (!event.getState().equals(EventState.PENDING)) throw new ForbiddenException("Cannot publish the event because it's not in the right state: PUBLISHED");
+        if (!event.getState().equals(EventState.PENDING))
+            throw new ForbiddenException("Cannot publish the event because it's not in the right state: PUBLISHED");
     }
 
     private Event checkIfEventExistsAndGet(Long eventId) {
