@@ -8,6 +8,8 @@ import ru.practicum.main.error.exception.EntityNotFoundException;
 import ru.practicum.main.error.exception.ForbiddenException;
 import ru.practicum.main.event.model.Event;
 import ru.practicum.main.event.model.enums.EventState;
+import ru.practicum.main.event.service.EventService;
+import ru.practicum.main.event.service.StatService;
 import ru.practicum.main.request.dto.EventRequestStatusUpdateRequest;
 import ru.practicum.main.request.dto.EventRequestStatusUpdateResult;
 import ru.practicum.main.request.dto.ParticipationRequestDto;
@@ -15,8 +17,6 @@ import ru.practicum.main.request.mapper.RequestMapper;
 import ru.practicum.main.request.model.Request;
 import ru.practicum.main.request.model.enums.RequestState;
 import ru.practicum.main.request.repository.RequestRepository;
-import ru.practicum.main.event.service.EventService;
-import ru.practicum.main.event.service.StatService;
 import ru.practicum.main.user.model.User;
 import ru.practicum.main.user.service.UserService;
 

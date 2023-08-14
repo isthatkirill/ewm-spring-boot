@@ -205,12 +205,20 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public List<Event> getEventsByIds(List<Long> ids) {
+        return eventRepository.findEventsByIdIn(ids);
+    }
+
+    @Override
     public Event checkIfOwnEventExistsAndGet(Long eventId, Long userId) {
         return eventRepository.findEventByIdAndInitiatorId(eventId, userId)
                 .orElseThrow(() -> new EntityNotFoundException(Event.class, eventId));
     }
 
-    private List<EventShortDto> mapToShortDtoWithViewsAndRequests(List<Event> events) {
+    @Override
+    @Transactional(readOnly = true)
+    public List<EventShortDto> mapToShortDtoWithViewsAndRequests(List<Event> events) {
         Map<Long, Long> views = statService.getViews(events);
 
         return events.stream()

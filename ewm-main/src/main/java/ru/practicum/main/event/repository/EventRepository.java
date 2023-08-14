@@ -21,4 +21,6 @@ public interface EventRepository extends JpaRepository<Event, Long>, CustomEvent
             "e.id = ?1")
     Optional<Event> getEventIfPublished(Long eventId);
 
+    List<Event> findEventsByIdIn(List<Long> ids);
+
 }

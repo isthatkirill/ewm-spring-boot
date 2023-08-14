@@ -13,6 +13,7 @@ import static ru.practicum.main.util.Formats.DATE_PATTERN;
 @Getter
 @Setter
 @Builder
+@ToString
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
