@@ -38,4 +38,6 @@ public interface EventService {
 
     List<EventShortDto> mapToShortDtoWithViewsAndRequests(List<Event> events);
 
+    List<Event> getEventsByCategoryId(Long catId);
+
 }

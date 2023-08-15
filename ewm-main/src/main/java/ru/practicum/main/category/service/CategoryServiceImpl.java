@@ -12,6 +12,9 @@ import ru.practicum.main.category.mapper.CategoryMapper;
 import ru.practicum.main.category.model.Category;
 import ru.practicum.main.category.repository.CategoryRepository;
 import ru.practicum.main.error.exception.EntityNotFoundException;
+import ru.practicum.main.error.exception.ForbiddenException;
+import ru.practicum.main.event.repository.EventRepository;
+import ru.practicum.main.event.service.EventService;
 
 import java.util.List;
 
@@ -22,6 +25,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository categoryRepository;
     private final CategoryMapper categoryMapper;
+    private final EventRepository eventRepository;
 
     @Override
     @Transactional
@@ -45,6 +49,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Transactional
     public void delete(Long catId) {
         checkIfCategoryExistsAndGet(catId);
+        checkIfEmpty(catId);
         categoryRepository.deleteById(catId);
         log.info("Category with id={} has been deleted", catId);
     }
@@ -68,6 +73,10 @@ public class CategoryServiceImpl implements CategoryService {
     @Transactional(readOnly = true)
     public Category getCategoryById(Long catId) {
         return checkIfCategoryExistsAndGet(catId);
+    }
+
+    private void checkIfEmpty(Long catId) {
+        if (!eventRepository.findEventsByCategoryId(catId).isEmpty()) throw new ForbiddenException("The category is not empty");
     }
 
 

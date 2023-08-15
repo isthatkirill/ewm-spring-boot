@@ -229,6 +229,12 @@ public class EventServiceImpl implements EventService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<Event> getEventsByCategoryId(Long catId) {
+        return eventRepository.findEventsByCategoryId(catId);
+    }
+
     private List<EventFullDto> mapToFullDtoWithViewsAndRequests(List<Event> events) {
         Map<Long, Long> views = statService.getViews(events);
 
