@@ -21,6 +21,8 @@ public abstract class CompilationMapper {
     @Mapping(target = "events", expression = "java(eventService.mapToShortDtoWithViewsAndRequests(compilation.getEvents()))")
     public abstract CompilationDto toCompilationDto(Compilation compilation);
 
+    public abstract List<CompilationDto> compilationDto(List<Compilation> compilations);
+
     @Mapping(target = "events", source = "events")
     public abstract Compilation toCompilation(NewCompilationDto newCompilationDto, List<Event> events);
 

@@ -12,6 +12,6 @@ public interface CustomEventRepository {
                                   LocalDateTime rangeStart, LocalDateTime rangeEnd, Integer from, Integer size);
 
     List<Event> findEventsByPublic(String text, List<Long> categories, Boolean paid, LocalDateTime rangeStart,
-                      LocalDateTime rangeEnd, Integer from, Integer size);
+                                   LocalDateTime rangeEnd, Integer from, Integer size);
 
 }

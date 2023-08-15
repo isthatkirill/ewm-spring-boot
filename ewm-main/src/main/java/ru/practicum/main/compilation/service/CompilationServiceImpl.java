@@ -2,6 +2,8 @@ package ru.practicum.main.compilation.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.main.compilation.dto.CompilationDto;
@@ -58,6 +60,23 @@ public class CompilationServiceImpl implements CompilationService {
         checkIfCompExistsAndGet(compId);
         log.info("Delete compilation with id={}", compId);
         compilationRepository.deleteById(compId);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public CompilationDto getById(Long compId) {
+        log.info("Get compilation with id={}", compId);
+        return compilationMapper.toCompilationDto(checkIfCompExistsAndGet(compId));
+    }
+
+    @Override
+    public List<CompilationDto> getAll(Boolean pinned, Integer from, Integer size) {
+        Pageable pageable = PageRequest.of(from / size, size);
+        log.info("Get compilations with params pinned={}, from={}, size={}", pinned, from, size);
+        List<Compilation> compilations = (pinned != null)
+                ? compilationRepository.findAllByPinnedIs(pinned, pageable)
+                : compilationRepository.findAll(pageable).toList();
+        return compilationMapper.compilationDto(compilations);
     }
 
 

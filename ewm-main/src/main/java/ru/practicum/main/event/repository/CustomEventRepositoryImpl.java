@@ -28,8 +28,10 @@ public class CustomEventRepositoryImpl implements CustomEventRepository {
 
         if (users != null && !users.isEmpty()) predicate = cb.and(predicate, root.get("initiator").in(users));
         if (states != null && !states.isEmpty()) predicate = cb.and(predicate, root.get("state").in(states));
-        if (categories != null && !categories.isEmpty()) predicate = cb.and(predicate, root.get("category").in(categories));
-        if (rangeStart != null && rangeEnd != null) predicate = cb.and(predicate, cb.between(root.get("eventDate"), rangeStart, rangeEnd));
+        if (categories != null && !categories.isEmpty())
+            predicate = cb.and(predicate, root.get("category").in(categories));
+        if (rangeStart != null && rangeEnd != null)
+            predicate = cb.and(predicate, cb.between(root.get("eventDate"), rangeStart, rangeEnd));
 
         return entityManager
                 .createQuery(query.select(root).where(predicate))
@@ -40,7 +42,7 @@ public class CustomEventRepositoryImpl implements CustomEventRepository {
 
     @Override
     public List<Event> findEventsByPublic(String text, List<Long> categories, Boolean paid, LocalDateTime rangeStart,
-                                         LocalDateTime rangeEnd, Integer from, Integer size) {
+                                          LocalDateTime rangeEnd, Integer from, Integer size) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Event> query = cb.createQuery(Event.class);
         Root<Event> root = query.from(Event.class);
@@ -52,16 +54,17 @@ public class CustomEventRepositoryImpl implements CustomEventRepository {
             predicate = cb.and(predicate, cb.or(annotation, description));
         }
 
-        if (categories != null && !categories.isEmpty()) predicate = cb.and(predicate, root.get("category").in(categories));
+        if (categories != null && !categories.isEmpty())
+            predicate = cb.and(predicate, root.get("category").in(categories));
         if (paid != null) predicate = cb.and(predicate, root.get("paid").in(paid));
 
         if (rangeStart != null && rangeEnd != null) {
-            predicate = cb.and(predicate,  cb.between(root.get("eventDate"), rangeStart, rangeEnd));
+            predicate = cb.and(predicate, cb.between(root.get("eventDate"), rangeStart, rangeEnd));
         } else {
-            predicate = cb.and(predicate,cb.greaterThan(root.get("eventDate"), LocalDateTime.now()));
+            predicate = cb.and(predicate, cb.greaterThan(root.get("eventDate"), LocalDateTime.now()));
         }
 
-        predicate = cb.and(predicate,cb.equal(root.get("state"), EventState.PUBLISHED));
+        predicate = cb.and(predicate, cb.equal(root.get("state"), EventState.PUBLISHED));
 
         return entityManager
                 .createQuery(query.select(root).where(predicate))

@@ -27,8 +27,8 @@ public interface EventService {
     EventFullDto getEventByPublic(Long eventId, HttpServletRequest request);
 
     List<EventShortDto> getAllEventsByPublic(String text, List<Long> categories, Boolean paid, LocalDateTime rangeStart,
-                                            LocalDateTime rangeEnd, Boolean onlyAvailable, EventSort sort, Integer from,
-                                            Integer size, HttpServletRequest request);
+                                             LocalDateTime rangeEnd, Boolean onlyAvailable, EventSort sort, Integer from,
+                                             Integer size, HttpServletRequest request);
 
     Event getById(Long eventId);
 
