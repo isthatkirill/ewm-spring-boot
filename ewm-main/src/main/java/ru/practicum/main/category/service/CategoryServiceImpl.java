@@ -14,7 +14,6 @@ import ru.practicum.main.category.repository.CategoryRepository;
 import ru.practicum.main.error.exception.EntityNotFoundException;
 import ru.practicum.main.error.exception.ForbiddenException;
 import ru.practicum.main.event.repository.EventRepository;
-import ru.practicum.main.event.service.EventService;
 
 import java.util.List;
 
@@ -76,7 +75,8 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     private void checkIfEmpty(Long catId) {
-        if (!eventRepository.findEventsByCategoryId(catId).isEmpty()) throw new ForbiddenException("The category is not empty");
+        if (!eventRepository.findEventsByCategoryId(catId).isEmpty())
+            throw new ForbiddenException("The category is not empty");
     }
 
 
