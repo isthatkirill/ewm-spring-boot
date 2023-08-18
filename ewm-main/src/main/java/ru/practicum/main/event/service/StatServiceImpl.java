@@ -26,17 +26,18 @@ import java.util.stream.Collectors;
 public class StatServiceImpl implements StatService {
 
     private final StatClient statClient;
+    private final RequestRepository requestRepository;
 
     @Override
     @Transactional
-    public void hit(HttpServletRequest request) {
-        EndpointHitDto hit = buildHit(request);
+    public void hit(String uri, String ip) {
+        EndpointHitDto hit = buildHit(uri, ip);
         log.info("Add hit --> {}", hit);
         statClient.addHit(hit);
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public Map<Long, Long> getViews(List<Event> events) {
         Map<Long, Long> views = new HashMap<>();
 
@@ -65,12 +66,30 @@ public class StatServiceImpl implements StatService {
         return views;
     }
 
-    private EndpointHitDto buildHit(HttpServletRequest request) {
+    @Override
+    @Transactional(readOnly = true)
+    public Map<Long, Long> getConfirmedRequests(List<Event> events) {
+        List<Long> publishedIds = events.stream()
+                .filter(e -> e.getPublishedOn() != null)
+                .map(Event::getId)
+                .collect(Collectors.toList());
+
+        Map<Long, Long> confirmedRequests = new HashMap<>();
+
+        requestRepository.getConfirmedRequests(publishedIds)
+                .forEach(cr -> confirmedRequests.put(cr.getEventId(), cr.getConfirmed()));
+
+        return confirmedRequests;
+    }
+
+
+
+    private EndpointHitDto buildHit(String uri, String ip) {
         return EndpointHitDto.builder()
                 .app("ewm-main")
-                .uri(request.getRequestURI())
+                .uri(uri)
                 .timestamp(LocalDateTime.now())
-                .ip(request.getRemoteAddr())
+                .ip(ip)
                 .build();
     }
 

@@ -147,7 +147,7 @@ public class EventServiceImpl implements EventService {
     public EventFullDto getEventByPublic(Long eventId, HttpServletRequest request) {
         Event event = checkIfPublishedEventExistsAndGet(eventId);
         log.info("Get event with id={} by public", eventId);
-        statService.hit(request);
+        statService.hit(request.getRequestURI(), request.getRemoteAddr());
         return mapToFullDtoWithViewsAndRequests(event);
     }
 
@@ -186,7 +186,7 @@ public class EventServiceImpl implements EventService {
         log.info("Get events by public with params: text={}, categories={}, paid={}, start={}, end={}, onlyAvailable={}," +
                 "sort={}, from={}, size={}", text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size);
 
-        statService.hit(request);
+        statService.hit(request.getRequestURI(), request.getRemoteAddr());
 
         return eventsWithViewsAndRequests;
     }
@@ -206,22 +206,24 @@ public class EventServiceImpl implements EventService {
     @Transactional(readOnly = true)
     public List<EventShortDto> mapToShortDtoWithViewsAndRequests(List<Event> events) {
         Map<Long, Long> views = statService.getViews(events);
+        Map<Long, Long> confirmedRequests = statService.getConfirmedRequests(events);
 
         return events.stream()
                 .map(e -> eventMapper.toEventShortDto(
                         e,
-                        requestRepository.getConfirmedRequests(e.getId()),
+                        confirmedRequests.getOrDefault(e.getId(), 0L),
                         views.getOrDefault(e.getId(), 0L)))
                 .collect(Collectors.toList());
     }
 
     private List<EventFullDto> mapToFullDtoWithViewsAndRequests(List<Event> events) {
         Map<Long, Long> views = statService.getViews(events);
+        Map<Long, Long> confirmedRequests = statService.getConfirmedRequests(events);
 
         return events.stream()
                 .map(e -> eventMapper.toEventFullDto(
                         e,
-                        requestRepository.getConfirmedRequests(e.getId()),
+                        confirmedRequests.getOrDefault(e.getId(), 0L),
                         views.getOrDefault(e.getId(), 0L)))
                 .collect(Collectors.toList());
     }

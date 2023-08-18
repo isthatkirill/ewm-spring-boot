@@ -8,8 +8,10 @@ import java.util.Map;
 
 public interface StatService {
 
-    void hit(HttpServletRequest httpServletRequest);
+    public void hit(String uri, String ip);
 
     Map<Long, Long> getViews(List<Event> events);
+
+    Map<Long, Long> getConfirmedRequests(List<Event> events);
 
 }
