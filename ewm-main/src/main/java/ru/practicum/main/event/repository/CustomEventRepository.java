@@ -1,7 +1,7 @@
 package ru.practicum.main.event.repository;
 
 import ru.practicum.main.event.model.Event;
-import ru.practicum.main.event.model.enums.EventState;
+import ru.practicum.main.event.model.EventState;
 
 import java.time.LocalDateTime;
 import java.util.List;

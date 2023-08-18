@@ -30,6 +30,7 @@ public class ErrorHandler {
     private static final String FORBIDDEN_REASON = "For the requested operation the conditions are not met";
     private static final String INVALID_BODY_REASON = "Invalid request body";
     private static final String BAD_REQUEST_REASON = "Incorrectly made request";
+    private static final String UNEXPECTED_ERROR_REASON = "An unexpected error has occurred";
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -41,7 +42,7 @@ public class ErrorHandler {
                 .append(". Error: ").append(v.getMessage())
                 .append(". Value: ").append(v.getInvalidValue()).append("\n"));
 
-        log.warn("Validation error. {}. {}", INVALID_DATA_REASON, errorMessage);
+        log.warn("Validation error. {}. {}", INVALID_DATA_REASON, errorMessage, e);
 
         return new ApiError(
                 HttpStatus.BAD_REQUEST.getReasonPhrase(),
@@ -60,7 +61,7 @@ public class ErrorHandler {
                         error.getField(), error.getDefaultMessage(), error.getRejectedValue()))
                 .collect(Collectors.joining("\n"));
 
-        log.warn("Validation error. {}. {}", INVALID_DATA_REASON, errorMessage);
+        log.warn("Validation error. {}. {}", INVALID_DATA_REASON, errorMessage, e);
 
         return new ApiError(
                 HttpStatus.BAD_REQUEST.getReasonPhrase(),
@@ -73,7 +74,7 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ApiError notFoundHandle(final EntityNotFoundException e) {
-        log.warn("{}. {}", NOT_FOUND_REASON, e.getMessage());
+        log.warn("{}. {}", NOT_FOUND_REASON, e.getMessage(), e);
         return new ApiError(
                 HttpStatus.NOT_FOUND.getReasonPhrase(),
                 NOT_FOUND_REASON,
@@ -85,7 +86,7 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
     public ApiError dbErrorHandle(final DataIntegrityViolationException e) {
-        log.warn("{}. {}", INTEGRITY_CONSTRAINT_REASON, e.getMessage());
+        log.warn("{}. {}", INTEGRITY_CONSTRAINT_REASON, e.getMessage(), e);
         return new ApiError(
                 HttpStatus.CONFLICT.getReasonPhrase(),
                 INTEGRITY_CONSTRAINT_REASON,
@@ -97,7 +98,7 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
     public ApiError forbiddenHandle(final ForbiddenException e) {
-        log.warn("{}. {}", FORBIDDEN_REASON, e.getMessage());
+        log.warn("{}. {}", FORBIDDEN_REASON, e.getMessage(), e);
         return new ApiError(
                 HttpStatus.FORBIDDEN.getReasonPhrase(),
                 FORBIDDEN_REASON,
@@ -109,7 +110,7 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
     public ApiError invalidBodyHandle(final HttpMessageNotReadableException e) {
-        log.warn("{}. {}", INVALID_BODY_REASON, e.getMessage());
+        log.warn("{}. {}", INVALID_BODY_REASON, e.getMessage(), e);
         return new ApiError(
                 HttpStatus.CONFLICT.getReasonPhrase(),
                 INVALID_BODY_REASON,
@@ -121,7 +122,7 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ApiError badRequestHandle(final IllegalStateException e) {
-        log.warn("{}. {}", BAD_REQUEST_REASON, e.getMessage());
+        log.warn("{}. {}", BAD_REQUEST_REASON, e.getMessage(), e);
         return new ApiError(
                 HttpStatus.BAD_REQUEST.getReasonPhrase(),
                 BAD_REQUEST_REASON,
@@ -133,10 +134,22 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ApiError missingParamHandle(final MissingServletRequestParameterException e) {
-        log.warn("{}. {}", BAD_REQUEST_REASON, e.getMessage());
+        log.warn("{}. {}", BAD_REQUEST_REASON, e.getMessage(), e);
         return new ApiError(
                 HttpStatus.BAD_REQUEST.getReasonPhrase(),
                 BAD_REQUEST_REASON,
+                e.getMessage(),
+                getStackTrace(e)
+        );
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ApiError unexpectedErrorHandle(final Throwable e) {
+        log.warn("{}. {}", UNEXPECTED_ERROR_REASON, e.getMessage(), e);
+        return new ApiError(
+                HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
+                UNEXPECTED_ERROR_REASON,
                 e.getMessage(),
                 getStackTrace(e)
         );
@@ -147,6 +160,5 @@ public class ErrorHandler {
                 .map(StackTraceElement::toString)
                 .collect(Collectors.toList());
     }
-
 
 }

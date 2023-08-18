@@ -7,18 +7,17 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.main.error.exception.EntityNotFoundException;
 import ru.practicum.main.error.exception.ForbiddenException;
 import ru.practicum.main.event.model.Event;
-import ru.practicum.main.event.model.enums.EventState;
-import ru.practicum.main.event.service.EventService;
-import ru.practicum.main.event.service.StatService;
-import ru.practicum.main.request.dto.EventRequestStatusUpdateRequest;
-import ru.practicum.main.request.dto.EventRequestStatusUpdateResult;
+import ru.practicum.main.event.model.EventState;
+import ru.practicum.main.event.repository.EventRepository;
+import ru.practicum.main.request.dto.EventRequestStatusUpdateRequestDto;
+import ru.practicum.main.request.dto.EventRequestStatusUpdateResultDto;
 import ru.practicum.main.request.dto.ParticipationRequestDto;
 import ru.practicum.main.request.mapper.RequestMapper;
 import ru.practicum.main.request.model.Request;
-import ru.practicum.main.request.model.enums.RequestState;
+import ru.practicum.main.request.model.RequestState;
 import ru.practicum.main.request.repository.RequestRepository;
 import ru.practicum.main.user.model.User;
-import ru.practicum.main.user.service.UserService;
+import ru.practicum.main.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -31,17 +30,16 @@ import java.util.List;
 public class RequestServiceImpl implements RequestService {
 
     private final RequestRepository requestRepository;
-    private final UserService userService;
-    private final EventService eventService;
+    private final UserRepository userRepository;
+    private final EventRepository eventRepository;
     private final RequestMapper requestMapper;
-    private final StatService statService;
 
     @Override
     @Transactional
     public ParticipationRequestDto create(Long userId, Long eventId) {
 
-        User user = userService.getById(userId);
-        Event event = eventService.getById(eventId);
+        User user = checkIfUserExistsAndGet(userId);
+        Event event = checkIfEventExistsAndGet(eventId);
         checkIfNotRepeated(userId, eventId);
         checkIfNotOwnEvent(userId, event);
         checkIfPublished(event);
@@ -54,10 +52,11 @@ public class RequestServiceImpl implements RequestService {
                 .status(RequestState.PENDING)
                 .build();
 
-        if (!event.getRequestModeration() || event.getParticipantLimit() == 0)
+        if (!event.getRequestModeration() || event.getParticipantLimit() == 0) {
             request.setStatus(RequestState.CONFIRMED);
+        }
 
-        log.info("Add new request --> {}", request);
+        log.info("Add new request --> id={}", request.getId());
         return requestMapper.toParticipationRequestDto(requestRepository.save(request));
 
     }
@@ -65,7 +64,7 @@ public class RequestServiceImpl implements RequestService {
     @Override
     @Transactional(readOnly = true)
     public List<ParticipationRequestDto> getRequestsByUserId(Long userId) {
-        userService.getById(userId);
+        checkIfUserExists(userId);
         log.info("Get requests for user with id={}", userId);
         return requestMapper.toParticipationRequestDto(requestRepository.findRequestsByRequesterId(userId));
     }
@@ -73,7 +72,7 @@ public class RequestServiceImpl implements RequestService {
     @Override
     @Transactional
     public ParticipationRequestDto cancel(Long userId, Long requestId) {
-        userService.getById(userId);
+        checkIfUserExists(userId);
         Request request = findByUserIdAndRequestId(userId, requestId);
         request.setStatus(RequestState.CANCELED);
         log.info("User with id={} cancelled request with id={}", userId, requestId);
@@ -82,16 +81,16 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     @Transactional
-    public EventRequestStatusUpdateResult processRequestsByInitiator(EventRequestStatusUpdateRequest updateRequest,
-                                                                     Long userId, Long eventId) {
+    public EventRequestStatusUpdateResultDto processRequestsByInitiator(EventRequestStatusUpdateRequestDto updateRequest,
+                                                                        Long userId, Long eventId) {
         log.info("Processing requests --> {} by user id={} for event id={}", updateRequest, userId, eventId);
 
-        userService.getById(userId);
-        Event event = eventService.checkIfOwnEventExistsAndGet(eventId, userId);
+        checkIfUserExists(userId);
+        Event event = checkIfOwnEventExistsAndGet(eventId, userId);
         List<Long> ids = updateRequest.getRequestIds();
 
         if (shouldSkipProcessing(ids, event)) {
-            return new EventRequestStatusUpdateResult(
+            return new EventRequestStatusUpdateResultDto(
                     Collections.emptyList(),
                     Collections.emptyList()
             );
@@ -123,7 +122,7 @@ public class RequestServiceImpl implements RequestService {
                 break;
         }
 
-        return new EventRequestStatusUpdateResult(
+        return new EventRequestStatusUpdateResultDto(
                 requestMapper.toParticipationRequestDto(confirmed),
                 requestMapper.toParticipationRequestDto(rejected)
         );
@@ -142,7 +141,7 @@ public class RequestServiceImpl implements RequestService {
     }
 
     private void checkParticipantLimit(Integer requestToAdd, Event event) {
-        if (statService.getConfirmedRequests(event.getId()) + requestToAdd > event.getParticipantLimit() && event.getParticipantLimit() != 0) {
+        if (requestRepository.getConfirmedRequests(event.getId()) + requestToAdd > event.getParticipantLimit() && event.getParticipantLimit() != 0) {
             throw new ForbiddenException("Exceeded the limit of participants");
         }
     }
@@ -157,6 +156,16 @@ public class RequestServiceImpl implements RequestService {
 
     private boolean shouldSkipProcessing(List<Long> ids, Event event) {
         return ids.isEmpty() || event.getParticipantLimit() == 0 || !event.getRequestModeration();
+    }
+
+    private Event checkIfOwnEventExistsAndGet(Long eventId, Long userId) {
+        return eventRepository.findEventByIdAndInitiatorId(eventId, userId)
+                .orElseThrow(() -> new EntityNotFoundException(Event.class, eventId));
+    }
+
+    private Event checkIfEventExistsAndGet(Long eventId) {
+        return eventRepository.findById(eventId)
+                .orElseThrow(() -> new EntityNotFoundException(Event.class, eventId));
     }
 
     private void checkIfNotOwnEvent(Long userId, Event event) {
@@ -177,5 +186,15 @@ public class RequestServiceImpl implements RequestService {
         }
     }
 
+    private User checkIfUserExistsAndGet(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException(User.class, userId));
+    }
+
+    private void checkIfUserExists(Long userId) {
+        if (!userRepository.existsById(userId)) {
+            throw new EntityNotFoundException(User.class, userId);
+        }
+    }
 
 }

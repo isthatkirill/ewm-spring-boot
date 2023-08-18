@@ -8,7 +8,7 @@ import ru.practicum.main.event.dto.EventFullDto;
 import ru.practicum.main.event.dto.EventShortDto;
 import ru.practicum.main.event.dto.NewEventDto;
 import ru.practicum.main.event.model.Event;
-import ru.practicum.main.event.model.enums.EventState;
+import ru.practicum.main.event.model.EventState;
 import ru.practicum.main.location.mapper.LocationMapper;
 import ru.practicum.main.location.model.Location;
 import ru.practicum.main.user.mapper.UserMapper;

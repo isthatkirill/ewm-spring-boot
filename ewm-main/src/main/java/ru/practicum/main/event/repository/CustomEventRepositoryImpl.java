@@ -1,7 +1,7 @@
 package ru.practicum.main.event.repository;
 
 import ru.practicum.main.event.model.Event;
-import ru.practicum.main.event.model.enums.EventState;
+import ru.practicum.main.event.model.EventState;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -26,12 +26,18 @@ public class CustomEventRepositoryImpl implements CustomEventRepository {
         Root<Event> root = query.from(Event.class);
         Predicate predicate = cb.conjunction();
 
-        if (users != null && !users.isEmpty()) predicate = cb.and(predicate, root.get("initiator").in(users));
-        if (states != null && !states.isEmpty()) predicate = cb.and(predicate, root.get("state").in(states));
-        if (categories != null && !categories.isEmpty())
+        if (users != null && !users.isEmpty()) {
+            predicate = cb.and(predicate, root.get("initiator").in(users));
+        }
+        if (states != null && !states.isEmpty()) {
+            predicate = cb.and(predicate, root.get("state").in(states));
+        }
+        if (categories != null && !categories.isEmpty()) {
             predicate = cb.and(predicate, root.get("category").in(categories));
-        if (rangeStart != null && rangeEnd != null)
+        }
+        if (rangeStart != null && rangeEnd != null) {
             predicate = cb.and(predicate, cb.between(root.get("eventDate"), rangeStart, rangeEnd));
+        }
 
         return entityManager
                 .createQuery(query.select(root).where(predicate))
@@ -54,9 +60,12 @@ public class CustomEventRepositoryImpl implements CustomEventRepository {
             predicate = cb.and(predicate, cb.or(annotation, description));
         }
 
-        if (categories != null && !categories.isEmpty())
+        if (categories != null && !categories.isEmpty()) {
             predicate = cb.and(predicate, root.get("category").in(categories));
-        if (paid != null) predicate = cb.and(predicate, root.get("paid").in(paid));
+        }
+        if (paid != null) {
+            predicate = cb.and(predicate, root.get("paid").in(paid));
+        }
 
         if (rangeStart != null && rangeEnd != null) {
             predicate = cb.and(predicate, cb.between(root.get("eventDate"), rangeStart, rangeEnd));

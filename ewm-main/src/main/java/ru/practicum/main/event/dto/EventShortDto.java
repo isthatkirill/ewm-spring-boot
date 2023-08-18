@@ -3,6 +3,7 @@ package ru.practicum.main.event.dto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import lombok.experimental.SuperBuilder;
 import ru.practicum.main.category.dto.CategoryDto;
 import ru.practicum.main.user.dto.UserShortDto;
 
@@ -12,11 +13,11 @@ import static ru.practicum.main.util.Formats.DATE_PATTERN;
 
 @Getter
 @Setter
-@Builder
 @ToString
+@SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE)
+@FieldDefaults(level = AccessLevel.PROTECTED)
 public class EventShortDto {
 
     String annotation;

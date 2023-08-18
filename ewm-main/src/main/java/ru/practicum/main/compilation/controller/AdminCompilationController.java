@@ -6,9 +6,9 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.main.compilation.dto.CompilationRequestDto;
 import ru.practicum.main.compilation.dto.CompilationResponseDto;
-import ru.practicum.main.compilation.dto.OnCreate;
-import ru.practicum.main.compilation.dto.OnUpdate;
 import ru.practicum.main.compilation.service.CompilationService;
+import ru.practicum.main.util.markers.OnCreate;
+import ru.practicum.main.util.markers.OnUpdate;
 
 @Validated
 @RestController

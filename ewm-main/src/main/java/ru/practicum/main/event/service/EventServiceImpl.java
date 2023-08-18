@@ -8,19 +8,23 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.main.category.model.Category;
 import ru.practicum.main.category.repository.CategoryRepository;
-import ru.practicum.main.category.service.CategoryService;
 import ru.practicum.main.error.exception.EntityNotFoundException;
 import ru.practicum.main.error.exception.ForbiddenException;
-import ru.practicum.main.event.dto.*;
+import ru.practicum.main.event.dto.EventFullDto;
+import ru.practicum.main.event.dto.EventShortDto;
+import ru.practicum.main.event.dto.NewEventDto;
+import ru.practicum.main.event.dto.UpdateEventDto;
 import ru.practicum.main.event.mapper.EventMapper;
 import ru.practicum.main.event.model.Event;
-import ru.practicum.main.event.model.enums.EventSort;
-import ru.practicum.main.event.model.enums.EventState;
+import ru.practicum.main.event.model.EventSort;
+import ru.practicum.main.event.model.EventState;
 import ru.practicum.main.event.repository.EventRepository;
 import ru.practicum.main.location.mapper.LocationMapper;
 import ru.practicum.main.location.model.Location;
 import ru.practicum.main.location.repository.LocationRepository;
+import ru.practicum.main.request.repository.RequestRepository;
 import ru.practicum.main.user.model.User;
+import ru.practicum.main.user.repository.UserRepository;
 import ru.practicum.main.user.service.UserService;
 
 import javax.servlet.http.HttpServletRequest;
@@ -33,23 +37,33 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class EventServiceImpl implements EventService {
 
-    private final UserService userService;
     private final CategoryRepository categoryRepository;
-    private final LocationMapper locationMapper;
     private final LocationRepository locationRepository;
-    private final EventMapper eventMapper;
+    private final UserRepository userRepository;
     private final EventRepository eventRepository;
+    private final RequestRepository requestRepository;
+    private final LocationMapper locationMapper;
+    private final EventMapper eventMapper;
     private final StatService statService;
 
     @Override
     @Transactional
     public EventFullDto create(NewEventDto newEventDto, Long userId) {
-        User initiator = userService.getById(userId);
+        if (newEventDto.getPaid() == null) {
+            newEventDto.setPaid(false);
+        }
+        if (newEventDto.getParticipantLimit() == null) {
+            newEventDto.setParticipantLimit(0);
+        }
+        if (newEventDto.getRequestModeration() == null) {
+            newEventDto.setRequestModeration(true);
+        }
+        User initiator = checkIfUserExistsAndGet(userId);
         Category category = checkIfCategoryExistsAndGet(newEventDto.getCategory());
         Location location = findLocation(locationMapper.toLocation(newEventDto.getLocation()));
 
         Event event = eventMapper.toEvent(newEventDto, initiator, category, location, EventState.PENDING);
-        log.info("Create new event --> {}", event);
+        log.info("Create new event --> id={}, ", event.getId());
 
         return mapToFullDtoWithViewsAndRequests(eventRepository.save(event));
     }
@@ -64,23 +78,16 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public EventFullDto updateByInitiator(UpdateEventUserRequest updatedEvent, Long eventId, Long userId) {
-        userService.getById(userId);
+    public EventFullDto updateByInitiator(UpdateEventDto updatedEvent, Long eventId, Long userId) {
+        checkIfUserExists(userId);
         Event event = checkIfOwnEventExistsAndGet(eventId, userId);
         checkIfUserCanUpdate(event);
+        updateNotNullFields(updatedEvent, event);
 
-        if (updatedEvent.getEventDate() != null) event.setEventDate(updatedEvent.getEventDate());
-        if (updatedEvent.getPaid() != null) event.setPaid(updatedEvent.getPaid());
-        if (updatedEvent.getAnnotation() != null) event.setAnnotation(updatedEvent.getAnnotation());
-        if (updatedEvent.getParticipantLimit() != null) event.setParticipantLimit(updatedEvent.getParticipantLimit());
-        if (updatedEvent.getDescription() != null) event.setDescription(updatedEvent.getDescription());
-        if (updatedEvent.getRequestModeration() != null)
-            event.setRequestModeration(updatedEvent.getRequestModeration());
-        if (updatedEvent.getCategory() != null)
-            event.setCategory(checkIfCategoryExistsAndGet(updatedEvent.getCategory()));
-        if (updatedEvent.getTitle() != null) event.setTitle(updatedEvent.getTitle());
-        if (updatedEvent.getLocation() != null)
-            event.setLocation(findLocation(locationMapper.toLocation(updatedEvent.getLocation())));
+        if (updatedEvent.getParticipantLimit() != null) {
+            event.setParticipantLimit(updatedEvent.getParticipantLimit());
+        }
+
         if (updatedEvent.getStateAction() != null) {
             switch (updatedEvent.getStateAction()) {
                 case CANCEL_REVIEW:
@@ -92,31 +99,22 @@ public class EventServiceImpl implements EventService {
             }
         }
 
-        log.info("Update event with id={} by user id={}. New data={}", eventId, userId, updatedEvent);
+        log.info("Update event with id={} by user id={}", eventId, userId);
         return mapToFullDtoWithViewsAndRequests(eventRepository.save(event));
     }
 
     @Override
     @Transactional
-    public EventFullDto updateByAdmin(UpdateEventAdminRequest updatedEvent, Long eventId) {
+    public EventFullDto updateByAdmin(UpdateEventDto updatedEvent, Long eventId) {
         Event event = checkIfEventExistsAndGet(eventId);
         checkIfAdminCanUpdate(event);
+        updateNotNullFields(updatedEvent, event);
 
-        if (updatedEvent.getEventDate() != null) event.setEventDate(updatedEvent.getEventDate());
-        if (updatedEvent.getAnnotation() != null) event.setAnnotation(updatedEvent.getAnnotation());
-        if (updatedEvent.getPaid() != null) event.setPaid(updatedEvent.getPaid());
         if (updatedEvent.getParticipantLimit() != null) {
-            checkNewLimit(updatedEvent.getParticipantLimit(), statService.getConfirmedRequests(eventId));
+            checkNewLimit(updatedEvent.getParticipantLimit(), requestRepository.getConfirmedRequests(eventId));
             event.setParticipantLimit(updatedEvent.getParticipantLimit());
         }
-        if (updatedEvent.getRequestModeration() != null)
-            event.setRequestModeration(updatedEvent.getRequestModeration());
-        if (updatedEvent.getDescription() != null) event.setDescription(updatedEvent.getDescription());
-        if (updatedEvent.getCategory() != null)
-            event.setCategory(checkIfCategoryExistsAndGet(updatedEvent.getCategory()));
-        if (updatedEvent.getLocation() != null)
-            event.setLocation(findLocation(locationMapper.toLocation(updatedEvent.getLocation())));
-        if (updatedEvent.getTitle() != null) event.setTitle(updatedEvent.getTitle());
+
         if (updatedEvent.getStateAction() != null) {
             switch (updatedEvent.getStateAction()) {
                 case PUBLISH_EVENT:
@@ -129,7 +127,7 @@ public class EventServiceImpl implements EventService {
             }
         }
 
-        log.info("Update event with id={} by admin. New data={}", eventId, updatedEvent);
+        log.info("Update event with id={} by admin", eventId);
         return mapToFullDtoWithViewsAndRequests(eventRepository.save(event));
     }
 
@@ -199,14 +197,7 @@ public class EventServiceImpl implements EventService {
         return mapToFullDtoWithViewsAndRequests(checkIfOwnEventExistsAndGet(eventId, userId));
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public Event getById(Long eventId) {
-        return checkIfEventExistsAndGet(eventId);
-    }
-
-    @Override
-    public Event checkIfOwnEventExistsAndGet(Long eventId, Long userId) {
+    private Event checkIfOwnEventExistsAndGet(Long eventId, Long userId) {
         return eventRepository.findEventByIdAndInitiatorId(eventId, userId)
                 .orElseThrow(() -> new EntityNotFoundException(Event.class, eventId));
     }
@@ -219,7 +210,7 @@ public class EventServiceImpl implements EventService {
         return events.stream()
                 .map(e -> eventMapper.toEventShortDto(
                         e,
-                        statService.getConfirmedRequests(e.getId()),
+                        requestRepository.getConfirmedRequests(e.getId()),
                         views.getOrDefault(e.getId(), 0L)))
                 .collect(Collectors.toList());
     }
@@ -230,9 +221,36 @@ public class EventServiceImpl implements EventService {
         return events.stream()
                 .map(e -> eventMapper.toEventFullDto(
                         e,
-                        statService.getConfirmedRequests(e.getId()),
+                        requestRepository.getConfirmedRequests(e.getId()),
                         views.getOrDefault(e.getId(), 0L)))
                 .collect(Collectors.toList());
+    }
+
+    private void updateNotNullFields(UpdateEventDto updatedEvent, Event event) {
+        if (updatedEvent.getEventDate() != null) {
+            event.setEventDate(updatedEvent.getEventDate());
+        }
+        if (updatedEvent.getAnnotation() != null) {
+            event.setAnnotation(updatedEvent.getAnnotation());
+        }
+        if (updatedEvent.getPaid() != null) {
+            event.setPaid(updatedEvent.getPaid());
+        }
+        if (updatedEvent.getRequestModeration() != null) {
+            event.setRequestModeration(updatedEvent.getRequestModeration());
+        }
+        if (updatedEvent.getDescription() != null) {
+            event.setDescription(updatedEvent.getDescription());
+        }
+        if (updatedEvent.getCategory() != null) {
+            event.setCategory(checkIfCategoryExistsAndGet(updatedEvent.getCategory()));
+        }
+        if (updatedEvent.getLocation() != null) {
+            event.setLocation(findLocation(locationMapper.toLocation(updatedEvent.getLocation())));
+        }
+        if (updatedEvent.getTitle() != null) {
+            event.setTitle(updatedEvent.getTitle());
+        }
     }
 
     private void checkNewLimit(Integer newLimit, Long confirmedReq) {
@@ -245,8 +263,15 @@ public class EventServiceImpl implements EventService {
         return mapToFullDtoWithViewsAndRequests(Collections.singletonList(event)).get(0);
     }
 
-    private EventShortDto mapToShortDtoWithViewsAndRequests(Event event) {
-        return mapToShortDtoWithViewsAndRequests(Collections.singletonList(event)).get(0);
+    private void checkIfUserExists(Long userId) {
+        if (!userRepository.existsById(userId)) {
+            throw new EntityNotFoundException(User.class, userId);
+        }
+    }
+
+    private User checkIfUserExistsAndGet(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException(User.class, userId));
     }
 
     private void checkIfStartBeforeEnd(LocalDateTime start, LocalDateTime end) {
@@ -261,13 +286,15 @@ public class EventServiceImpl implements EventService {
     }
 
     private void checkIfUserCanUpdate(Event event) {
-        if (event.getState().equals(EventState.PUBLISHED))
+        if (event.getState().equals(EventState.PUBLISHED)) {
             throw new ForbiddenException("Only pending or canceled events can be changed");
+        }
     }
 
     private void checkIfAdminCanUpdate(Event event) {
-        if (!event.getState().equals(EventState.PENDING))
+        if (!event.getState().equals(EventState.PENDING)) {
             throw new ForbiddenException("Cannot publish the event because it's not in the right state: PUBLISHED");
+        }
     }
 
     private Event checkIfEventExistsAndGet(Long eventId) {

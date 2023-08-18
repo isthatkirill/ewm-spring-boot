@@ -6,11 +6,11 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.main.event.dto.EventFullDto;
-import ru.practicum.main.event.dto.UpdateEventAdminRequest;
-import ru.practicum.main.event.model.enums.EventState;
+import ru.practicum.main.event.dto.UpdateEventDto;
+import ru.practicum.main.event.model.EventState;
 import ru.practicum.main.event.service.EventService;
+import ru.practicum.main.util.markers.OnUpdateAdmin;
 
-import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 import java.time.LocalDateTime;
@@ -27,7 +27,7 @@ public class AdminEventController {
     private final EventService eventService;
 
     @PatchMapping("/{eventId}")
-    public EventFullDto updateByAdmin(@RequestBody @Valid UpdateEventAdminRequest updatedEvent,
+    public EventFullDto updateByAdmin(@RequestBody @Validated(OnUpdateAdmin.class) UpdateEventDto updatedEvent,
                                       @PathVariable Long eventId) {
         return eventService.updateByAdmin(updatedEvent, eventId);
     }

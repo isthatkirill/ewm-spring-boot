@@ -33,7 +33,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void delete(Long userId) {
-        checkIfUserExistsAndGet(userId);
+        checkIfUserExists(userId);
         userRepository.deleteById(userId);
         log.info("User with id={} has been deleted", userId);
     }
@@ -56,6 +56,12 @@ public class UserServiceImpl implements UserService {
     private User checkIfUserExistsAndGet(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException(User.class, userId));
+    }
+
+    private void checkIfUserExists(Long userId) {
+        if (!userRepository.existsById(userId)) {
+            throw new EntityNotFoundException(User.class, userId);
+        }
     }
 
 }

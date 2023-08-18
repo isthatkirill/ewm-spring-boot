@@ -65,7 +65,7 @@ public class CompilationServiceImpl implements CompilationService {
     @Override
     @Transactional
     public void delete(Long compId) {
-        checkIfCompExistsAndGet(compId);
+        checkIfCompExists(compId);
         log.info("Delete compilation with id={}", compId);
         compilationRepository.deleteById(compId);
     }
@@ -91,6 +91,12 @@ public class CompilationServiceImpl implements CompilationService {
     private Compilation checkIfCompExistsAndGet(Long compId) {
         return compilationRepository.findById(compId)
                 .orElseThrow(() -> new EntityNotFoundException(Compilation.class, compId));
+    }
+
+    private void checkIfCompExists(Long compId) {
+        if (!compilationRepository.existsById(compId)) {
+            throw new EntityNotFoundException(Compilation.class, compId);
+        }
     }
 
     private void checkIfAllEventsFound(Integer found, Integer provided) {

@@ -5,7 +5,6 @@ import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import ru.practicum.main.category.model.Category;
-import ru.practicum.main.event.model.enums.EventState;
 import ru.practicum.main.location.model.Location;
 import ru.practicum.main.user.model.User;
 
@@ -17,7 +16,6 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "events")
 @Builder
-@ToString
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @NoArgsConstructor
 @AllArgsConstructor

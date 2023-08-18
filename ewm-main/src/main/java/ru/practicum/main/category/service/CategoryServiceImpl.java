@@ -37,7 +37,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @Transactional
     public CategoryDto update(NewCategoryDto newCategoryDto, Long catId) {
-        checkIfCategoryExistsAndGet(catId);
+        checkIfCategoryExists(catId);
         Category updatedCategory = categoryMapper.toCategory(newCategoryDto);
         updatedCategory.setId(catId);
         log.info("Category updated --> {}", updatedCategory.getId());
@@ -77,6 +77,12 @@ public class CategoryServiceImpl implements CategoryService {
     private Category checkIfCategoryExistsAndGet(Long catId) {
         return categoryRepository.findById(catId)
                 .orElseThrow(() -> new EntityNotFoundException(Category.class, catId));
+    }
+
+    private void checkIfCategoryExists(Long catId) {
+        if (!categoryRepository.existsById(catId)) {
+            throw new EntityNotFoundException(Category.class, catId);
+        }
     }
 
 }

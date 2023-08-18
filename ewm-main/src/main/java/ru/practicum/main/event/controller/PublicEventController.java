@@ -6,7 +6,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.main.event.dto.EventFullDto;
 import ru.practicum.main.event.dto.EventShortDto;
-import ru.practicum.main.event.model.enums.EventSort;
+import ru.practicum.main.event.model.EventSort;
 import ru.practicum.main.event.service.EventService;
 
 import javax.servlet.http.HttpServletRequest;

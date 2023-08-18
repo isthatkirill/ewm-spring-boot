@@ -7,12 +7,14 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.main.event.dto.EventFullDto;
 import ru.practicum.main.event.dto.EventShortDto;
 import ru.practicum.main.event.dto.NewEventDto;
-import ru.practicum.main.event.dto.UpdateEventUserRequest;
+import ru.practicum.main.event.dto.UpdateEventDto;
 import ru.practicum.main.event.service.EventService;
-import ru.practicum.main.request.dto.EventRequestStatusUpdateRequest;
-import ru.practicum.main.request.dto.EventRequestStatusUpdateResult;
+import ru.practicum.main.request.dto.EventRequestStatusUpdateRequestDto;
+import ru.practicum.main.request.dto.EventRequestStatusUpdateResultDto;
 import ru.practicum.main.request.dto.ParticipationRequestDto;
 import ru.practicum.main.request.service.RequestService;
+import ru.practicum.main.util.markers.OnCreate;
+import ru.practicum.main.util.markers.OnUpdate;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
@@ -30,7 +32,7 @@ public class PrivateEventController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public EventFullDto create(@Valid @RequestBody NewEventDto newEventDto, @PathVariable Long userId) {
+    public EventFullDto create(@Validated(OnCreate.class) @RequestBody NewEventDto newEventDto, @PathVariable Long userId) {
         return eventService.create(newEventDto, userId);
     }
 
@@ -47,16 +49,16 @@ public class PrivateEventController {
     }
 
     @PatchMapping("/{eventId}")
-    public EventFullDto updateByInitiator(@Valid @RequestBody UpdateEventUserRequest updatedEvent,
+    public EventFullDto updateByInitiator(@Validated(OnUpdate.class) @RequestBody UpdateEventDto updatedEvent,
                                           @PathVariable Long eventId,
                                           @PathVariable Long userId) {
         return eventService.updateByInitiator(updatedEvent, eventId, userId);
     }
 
     @PatchMapping("/{eventId}/requests")
-    public EventRequestStatusUpdateResult processRequestsByInitiator(@RequestBody @Valid EventRequestStatusUpdateRequest updateRequest,
-                                                                     @PathVariable Long userId,
-                                                                     @PathVariable Long eventId) {
+    public EventRequestStatusUpdateResultDto processRequestsByInitiator(@RequestBody @Valid EventRequestStatusUpdateRequestDto updateRequest,
+                                                                        @PathVariable Long userId,
+                                                                        @PathVariable Long eventId) {
         return requestService.processRequestsByInitiator(updateRequest, userId, eventId);
     }
 

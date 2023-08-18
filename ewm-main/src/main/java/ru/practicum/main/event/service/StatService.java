@@ -12,6 +12,4 @@ public interface StatService {
 
     Map<Long, Long> getViews(List<Event> events);
 
-    Long getConfirmedRequests(Long eventId);
-
 }

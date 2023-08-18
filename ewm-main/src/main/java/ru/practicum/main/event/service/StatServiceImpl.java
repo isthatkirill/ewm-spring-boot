@@ -26,7 +26,6 @@ import java.util.stream.Collectors;
 public class StatServiceImpl implements StatService {
 
     private final StatClient statClient;
-    private final RequestRepository requestRepository;
 
     @Override
     @Transactional
@@ -64,14 +63,6 @@ public class StatServiceImpl implements StatService {
         }
 
         return views;
-    }
-
-    // Located here, not in RequestService to avoid circular dependencies (EventService -> RequestService -> EventService)
-    @Override
-    @Transactional(readOnly = true)
-    public Long getConfirmedRequests(Long eventId) {
-        log.info("Get number of confirmed requests for event id={}", eventId);
-        return requestRepository.getConfirmedRequests(eventId);
     }
 
     private EndpointHitDto buildHit(HttpServletRequest request) {

@@ -2,6 +2,8 @@ package ru.practicum.main.compilation.dto;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import ru.practicum.main.util.markers.OnCreate;
+import ru.practicum.main.util.markers.OnUpdate;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;

@@ -9,7 +9,6 @@ import javax.persistence.*;
 @Entity
 @Table(name = "locations")
 @Builder
-@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 public class Location {

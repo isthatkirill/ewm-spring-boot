@@ -4,13 +4,11 @@ import ru.practicum.main.event.validator.EventDateValidator;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 
 @Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
+@Repeatable(ValidEventDates.class)
 @Constraint(validatedBy = EventDateValidator.class)
 public @interface ValidEventDate {
     String message() default "EventDate must be at least 2 hours later than the current time and cannot be null";

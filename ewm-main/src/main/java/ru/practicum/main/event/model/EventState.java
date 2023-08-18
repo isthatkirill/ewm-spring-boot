@@ -1,4 +1,4 @@
-package ru.practicum.main.event.model.enums;
+package ru.practicum.main.event.model;
 
 public enum EventState {
     PENDING, PUBLISHED, CANCELED

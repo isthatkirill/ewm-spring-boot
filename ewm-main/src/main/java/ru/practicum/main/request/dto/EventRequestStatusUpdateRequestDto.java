@@ -2,7 +2,7 @@ package ru.practicum.main.request.dto;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import ru.practicum.main.request.model.enums.RequestProcessedState;
+import ru.practicum.main.request.model.RequestProcessedState;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -15,7 +15,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class EventRequestStatusUpdateRequest {
+public class EventRequestStatusUpdateRequestDto {
 
     @NotNull
     @NotEmpty
