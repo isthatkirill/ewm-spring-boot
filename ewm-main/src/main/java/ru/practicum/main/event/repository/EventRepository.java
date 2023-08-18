@@ -8,6 +8,7 @@ import ru.practicum.main.event.model.Event;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Repository
 public interface EventRepository extends JpaRepository<Event, Long>, CustomEventRepository {

@@ -34,10 +34,6 @@ public interface EventService {
 
     Event checkIfOwnEventExistsAndGet(Long eventId, Long userId);
 
-    List<Event> getEventsByIds(List<Long> ids);
-
     List<EventShortDto> mapToShortDtoWithViewsAndRequests(List<Event> events);
-
-    List<Event> getEventsByCategoryId(Long catId);
 
 }

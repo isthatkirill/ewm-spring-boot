@@ -4,12 +4,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.main.compilation.dto.CompilationDto;
-import ru.practicum.main.compilation.dto.NewCompilationDto;
-import ru.practicum.main.compilation.dto.UpdateCompilationRequest;
+import ru.practicum.main.compilation.dto.CompilationRequestDto;
+import ru.practicum.main.compilation.dto.CompilationResponseDto;
+import ru.practicum.main.compilation.dto.OnCreate;
+import ru.practicum.main.compilation.dto.OnUpdate;
 import ru.practicum.main.compilation.service.CompilationService;
-
-import javax.validation.Valid;
 
 @Validated
 @RestController
@@ -21,14 +20,14 @@ public class AdminCompilationController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public CompilationDto create(@RequestBody @Valid NewCompilationDto newCompilationDto) {
-        return compilationService.create(newCompilationDto);
+    public CompilationResponseDto create(@RequestBody @Validated(OnCreate.class) CompilationRequestDto compilationRequestDto) {
+        return compilationService.create(compilationRequestDto);
     }
 
     @PatchMapping("/{compId}")
-    public CompilationDto update(@RequestBody @Valid UpdateCompilationRequest updateCompilation,
-                                 @PathVariable Long compId) {
-        return compilationService.update(updateCompilation, compId);
+    public CompilationResponseDto update(@RequestBody @Validated(OnUpdate.class) CompilationRequestDto compilationRequestDto,
+                                         @PathVariable Long compId) {
+        return compilationService.update(compilationRequestDto, compId);
     }
 
     @DeleteMapping("/{compId}")

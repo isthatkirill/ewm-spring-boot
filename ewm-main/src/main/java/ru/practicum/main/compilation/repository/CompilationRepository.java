@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 import ru.practicum.main.compilation.model.Compilation;
 
 import java.util.List;
+import java.util.Set;
 
 @Repository
 public interface CompilationRepository extends JpaRepository<Compilation, Long> {

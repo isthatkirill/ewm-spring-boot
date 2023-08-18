@@ -8,14 +8,13 @@ import org.hibernate.annotations.OnDeleteAction;
 import ru.practicum.main.event.model.Event;
 
 import javax.persistence.*;
-import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
 @Entity
 @Table(name = "compilations")
 @Builder
-@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
@@ -38,7 +37,7 @@ public class Compilation {
             joinColumns = @JoinColumn(name = "compilation_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "event_id", referencedColumnName = "id")
     )
-    List<Event> events;
+    Set<Event> events;
 
 }
 

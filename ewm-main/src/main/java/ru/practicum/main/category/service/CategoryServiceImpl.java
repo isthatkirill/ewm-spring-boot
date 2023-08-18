@@ -30,7 +30,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Transactional
     public CategoryDto create(NewCategoryDto newCategoryDto) {
         Category category = categoryRepository.save(categoryMapper.toCategory(newCategoryDto));
-        log.info("New category added --> {}", category);
+        log.info("New category added --> id={}", category.getId());
         return categoryMapper.toCategoryDto(category);
     }
 
@@ -40,7 +40,7 @@ public class CategoryServiceImpl implements CategoryService {
         checkIfCategoryExistsAndGet(catId);
         Category updatedCategory = categoryMapper.toCategory(newCategoryDto);
         updatedCategory.setId(catId);
-        log.info("Category updated --> {}", updatedCategory);
+        log.info("Category updated --> {}", updatedCategory.getId());
         return categoryMapper.toCategoryDto(categoryRepository.save(updatedCategory));
     }
 
@@ -68,22 +68,15 @@ public class CategoryServiceImpl implements CategoryService {
         return categoryMapper.toCategoryDto(categoryRepository.findAll(pageable).toList());
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public Category getCategoryById(Long catId) {
-        return checkIfCategoryExistsAndGet(catId);
-    }
-
     private void checkIfEmpty(Long catId) {
-        if (!eventRepository.findEventsByCategoryId(catId).isEmpty())
+        if (!eventRepository.findEventsByCategoryId(catId).isEmpty()) {
             throw new ForbiddenException("The category is not empty");
+        }
     }
-
 
     private Category checkIfCategoryExistsAndGet(Long catId) {
         return categoryRepository.findById(catId)
                 .orElseThrow(() -> new EntityNotFoundException(Category.class, catId));
     }
-
 
 }

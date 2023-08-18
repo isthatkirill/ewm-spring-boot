@@ -9,7 +9,6 @@ services:
       - "9090:9090"
     depends_on:
       - stats-db
-      - ewm-service
     environment:
       - SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL_STAT}
       - POSTGRES_USER=${POSTGRES_USER}
@@ -32,6 +31,7 @@ services:
     - "8080:8080"
     depends_on:
       - ewm-db
+      - stats-server
     environment:
       - STATS_SERVER_DOCKER=${STATS_SERVER_DOCKER}
       - SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL_MAIN}

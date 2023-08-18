@@ -15,13 +15,13 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class NewCompilationDto {
+public class CompilationRequestDto {
 
     List<Long> events = new ArrayList<>();
-    Boolean pinned = false;
+    Boolean pinned;
 
-    @NotBlank(message = "Title cannot be null or blank")
-    @Size(min = 1, max = 50, message = "Title must be from 1 to 50 characters")
+    @NotBlank(message = "Title cannot be null or blank", groups = OnCreate.class)
+    @Size(min = 1, max = 50, message = "Title must be from 1 to 50 characters", groups = {OnCreate.class, OnUpdate.class})
     String title;
 
 }

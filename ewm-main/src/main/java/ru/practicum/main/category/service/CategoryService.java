@@ -18,6 +18,4 @@ public interface CategoryService {
 
     List<CategoryDto> getAll(Integer from, Integer size);
 
-    Category getCategoryById(Long catId);
-
 }

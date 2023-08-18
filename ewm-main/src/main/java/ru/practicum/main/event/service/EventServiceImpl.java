@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.main.category.model.Category;
+import ru.practicum.main.category.repository.CategoryRepository;
 import ru.practicum.main.category.service.CategoryService;
 import ru.practicum.main.error.exception.EntityNotFoundException;
 import ru.practicum.main.error.exception.ForbiddenException;
@@ -33,7 +34,7 @@ import java.util.stream.Collectors;
 public class EventServiceImpl implements EventService {
 
     private final UserService userService;
-    private final CategoryService categoryService;
+    private final CategoryRepository categoryRepository;
     private final LocationMapper locationMapper;
     private final LocationRepository locationRepository;
     private final EventMapper eventMapper;
@@ -44,7 +45,7 @@ public class EventServiceImpl implements EventService {
     @Transactional
     public EventFullDto create(NewEventDto newEventDto, Long userId) {
         User initiator = userService.getById(userId);
-        Category category = categoryService.getCategoryById(newEventDto.getCategory());
+        Category category = checkIfCategoryExistsAndGet(newEventDto.getCategory());
         Location location = findLocation(locationMapper.toLocation(newEventDto.getLocation()));
 
         Event event = eventMapper.toEvent(newEventDto, initiator, category, location, EventState.PENDING);
@@ -76,7 +77,7 @@ public class EventServiceImpl implements EventService {
         if (updatedEvent.getRequestModeration() != null)
             event.setRequestModeration(updatedEvent.getRequestModeration());
         if (updatedEvent.getCategory() != null)
-            event.setCategory(categoryService.getCategoryById(updatedEvent.getCategory()));
+            event.setCategory(checkIfCategoryExistsAndGet(updatedEvent.getCategory()));
         if (updatedEvent.getTitle() != null) event.setTitle(updatedEvent.getTitle());
         if (updatedEvent.getLocation() != null)
             event.setLocation(findLocation(locationMapper.toLocation(updatedEvent.getLocation())));
@@ -112,7 +113,7 @@ public class EventServiceImpl implements EventService {
             event.setRequestModeration(updatedEvent.getRequestModeration());
         if (updatedEvent.getDescription() != null) event.setDescription(updatedEvent.getDescription());
         if (updatedEvent.getCategory() != null)
-            event.setCategory(categoryService.getCategoryById(updatedEvent.getCategory()));
+            event.setCategory(checkIfCategoryExistsAndGet(updatedEvent.getCategory()));
         if (updatedEvent.getLocation() != null)
             event.setLocation(findLocation(locationMapper.toLocation(updatedEvent.getLocation())));
         if (updatedEvent.getTitle() != null) event.setTitle(updatedEvent.getTitle());
@@ -205,12 +206,6 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public List<Event> getEventsByIds(List<Long> ids) {
-        return eventRepository.findEventsByIdIn(ids);
-    }
-
-    @Override
     public Event checkIfOwnEventExistsAndGet(Long eventId, Long userId) {
         return eventRepository.findEventByIdAndInitiatorId(eventId, userId)
                 .orElseThrow(() -> new EntityNotFoundException(Event.class, eventId));
@@ -227,12 +222,6 @@ public class EventServiceImpl implements EventService {
                         statService.getConfirmedRequests(e.getId()),
                         views.getOrDefault(e.getId(), 0L)))
                 .collect(Collectors.toList());
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<Event> getEventsByCategoryId(Long catId) {
-        return eventRepository.findEventsByCategoryId(catId);
     }
 
     private List<EventFullDto> mapToFullDtoWithViewsAndRequests(List<Event> events) {
@@ -264,6 +253,11 @@ public class EventServiceImpl implements EventService {
         if (start != null && end != null && end.isBefore(start)) {
             throw new IllegalStateException("Incorrect time interval. The start param should be earlier than the end param");
         }
+    }
+
+    private Category checkIfCategoryExistsAndGet(Long catId) {
+        return categoryRepository.findById(catId)
+                .orElseThrow(() -> new EntityNotFoundException(Category.class, catId));
     }
 
     private void checkIfUserCanUpdate(Event event) {
