@@ -26,7 +26,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public UserDto create(UserDto userDto) {
         User user = userRepository.save(userMapper.toUser(userDto));
-        log.info("New user added --> {}", user);
+        log.info("New user added --> id={}", user.getId());
         return userMapper.toUserDto(user);
     }
 
@@ -45,17 +45,6 @@ public class UserServiceImpl implements UserService {
         log.info("Get all users ids={}, from={}, size={}", ids, from, size);
         return (ids == null || ids.isEmpty()) ? userMapper.toUserDto(userRepository.findAll(pageable)) :
                 userMapper.toUserDto(userRepository.findAllByIdIn(ids, pageable));
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public User getById(Long userId) {
-        return checkIfUserExistsAndGet(userId);
-    }
-
-    private User checkIfUserExistsAndGet(Long userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException(User.class, userId));
     }
 
     private void checkIfUserExists(Long userId) {

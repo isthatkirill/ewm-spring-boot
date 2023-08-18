@@ -11,7 +11,6 @@ import ru.practicum.stats.StatClient;
 import ru.practicum.stats.dto.EndpointHitDto;
 import ru.practicum.stats.dto.ViewStatsDto;
 
-import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -81,7 +80,6 @@ public class StatServiceImpl implements StatService {
 
         return confirmedRequests;
     }
-
 
 
     private EndpointHitDto buildHit(String uri, String ip) {

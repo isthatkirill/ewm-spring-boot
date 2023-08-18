@@ -69,4 +69,7 @@ public class Event {
     @JoinColumn(name = "category_id", referencedColumnName = "id")
     Category category;
 
+    @Version
+    Long version;
+
 }

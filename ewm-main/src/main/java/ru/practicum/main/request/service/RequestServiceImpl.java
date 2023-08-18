@@ -19,6 +19,9 @@ import ru.practicum.main.request.repository.RequestRepository;
 import ru.practicum.main.user.model.User;
 import ru.practicum.main.user.repository.UserRepository;
 
+import javax.persistence.EntityManager;
+import javax.persistence.LockModeType;
+import javax.persistence.PersistenceContext;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,12 +37,17 @@ public class RequestServiceImpl implements RequestService {
     private final EventRepository eventRepository;
     private final RequestMapper requestMapper;
 
+    @PersistenceContext
+    EntityManager entityManager;
+
     @Override
     @Transactional
     public ParticipationRequestDto create(Long userId, Long eventId) {
-
         User user = checkIfUserExistsAndGet(userId);
         Event event = checkIfEventExistsAndGet(eventId);
+
+        entityManager.lock(event, LockModeType.OPTIMISTIC);
+
         checkIfNotRepeated(userId, eventId);
         checkIfNotOwnEvent(userId, event);
         checkIfPublished(event);
@@ -56,8 +64,13 @@ public class RequestServiceImpl implements RequestService {
             request.setStatus(RequestState.CONFIRMED);
         }
 
+        ParticipationRequestDto participationRequestDto = requestMapper
+                .toParticipationRequestDto(requestRepository.save(request));
+
+        entityManager.persist(event);
+
         log.info("Add new request --> id={}", request.getId());
-        return requestMapper.toParticipationRequestDto(requestRepository.save(request));
+        return participationRequestDto;
 
     }
 
@@ -106,21 +119,21 @@ public class RequestServiceImpl implements RequestService {
         List<Request> confirmed = new ArrayList<>();
         List<Request> rejected = new ArrayList<>();
 
-        log.info("REQ : {}", requests); //TODO DELETE
+        entityManager.lock(event, LockModeType.OPTIMISTIC);
 
         switch (updateRequest.getStatus()) {
             case REJECTED:
                 requests.forEach(r -> r.setStatus(RequestState.REJECTED));
                 rejected = requestRepository.saveAll(requests);
-                log.info("REJECTED {}\n\n", rejected);
                 break;
             case CONFIRMED:
                 checkParticipantLimit(ids.size(), event);
                 requests.forEach(r -> r.setStatus(RequestState.CONFIRMED));
                 confirmed = requestRepository.saveAll(requests);
-                log.info("confirmed {}\n\n", confirmed); //TODO DELETE
                 break;
         }
+
+        entityManager.persist(event);
 
         return new EventRequestStatusUpdateResultDto(
                 requestMapper.toParticipationRequestDto(confirmed),
@@ -159,6 +172,8 @@ public class RequestServiceImpl implements RequestService {
     }
 
     private Event checkIfOwnEventExistsAndGet(Long eventId, Long userId) {
+
+
         return eventRepository.findEventByIdAndInitiatorId(eventId, userId)
                 .orElseThrow(() -> new EntityNotFoundException(Event.class, eventId));
     }
