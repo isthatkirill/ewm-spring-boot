@@ -7,7 +7,7 @@ import java.util.Map;
 
 public interface StatService {
 
-    public void hit(String uri, String ip);
+    void hit(String uri, String ip);
 
     Map<Long, Long> getViews(List<Event> events);
 

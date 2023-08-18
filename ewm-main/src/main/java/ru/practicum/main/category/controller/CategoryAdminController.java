@@ -22,7 +22,6 @@ public class CategoryAdminController {
     @ResponseStatus(HttpStatus.CREATED)
     public CategoryDto create(@RequestBody @Valid NewCategoryDto newCategoryDto) {
         return categoryService.create(newCategoryDto);
-
     }
 
     @PatchMapping("/{catId}")

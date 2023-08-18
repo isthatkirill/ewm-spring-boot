@@ -311,7 +311,6 @@ public class EventServiceImpl implements EventService {
     private Location findLocation(Location location) {
         return locationRepository.findByLatAndLon(location.getLat(), location.getLon())
                 .orElseGet(() -> locationRepository.save(location));
-
     }
 
 }

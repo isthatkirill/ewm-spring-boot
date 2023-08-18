@@ -40,5 +40,4 @@ public class UserAdminController {
         return userService.getUsers(ids, from, size);
     }
 
-
 }

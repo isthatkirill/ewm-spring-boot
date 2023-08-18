@@ -38,4 +38,5 @@ public class Request {
 
     @Column(name = "created", nullable = false)
     LocalDateTime created;
+
 }
