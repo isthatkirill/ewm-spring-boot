@@ -13,8 +13,8 @@ import ru.practicum.main.request.dto.EventRequestStatusUpdateRequestDto;
 import ru.practicum.main.request.dto.EventRequestStatusUpdateResultDto;
 import ru.practicum.main.request.dto.ParticipationRequestDto;
 import ru.practicum.main.request.service.RequestService;
-import ru.practicum.main.util.markers.OnCreate;
-import ru.practicum.main.util.markers.OnUpdate;
+import ru.practicum.main.validation.group.OnCreate;
+import ru.practicum.main.validation.group.OnUpdate;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;

@@ -1,6 +1,7 @@
 package ru.practicum.main.event.repository;
 
 import ru.practicum.main.event.model.Event;
+import ru.practicum.main.event.model.EventSort;
 import ru.practicum.main.event.model.EventState;
 
 import javax.persistence.EntityManager;
@@ -48,7 +49,7 @@ public class CustomEventRepositoryImpl implements CustomEventRepository {
 
     @Override
     public List<Event> findEventsByPublic(String text, List<Long> categories, Boolean paid, LocalDateTime rangeStart,
-                                          LocalDateTime rangeEnd, Integer from, Integer size) {
+                                          LocalDateTime rangeEnd, Integer from, Integer size, EventSort sort) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Event> query = cb.createQuery(Event.class);
         Root<Event> root = query.from(Event.class);
@@ -75,8 +76,14 @@ public class CustomEventRepositoryImpl implements CustomEventRepository {
 
         predicate = cb.and(predicate, cb.equal(root.get("state"), EventState.PUBLISHED));
 
+        query.select(root).where(predicate);
+
+        if (sort.equals(EventSort.EVENT_DATE)) {
+            query.orderBy(cb.asc(root.get("eventDate")));
+        }
+
         return entityManager
-                .createQuery(query.select(root).where(predicate))
+                .createQuery(query)
                 .setFirstResult(from)
                 .setMaxResults(size)
                 .getResultList();

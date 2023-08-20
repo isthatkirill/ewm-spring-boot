@@ -28,7 +28,6 @@ public class StatServiceImpl implements StatService {
     private final RequestRepository requestRepository;
 
     @Override
-    @Transactional
     public void hit(String uri, String ip) {
         EndpointHitDto hit = buildHit(uri, ip);
         log.info("Add hit --> {}", hit);
@@ -36,7 +35,6 @@ public class StatServiceImpl implements StatService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public Map<Long, Long> getViews(List<Event> events) {
         Map<Long, Long> views = new HashMap<>();
 

@@ -9,7 +9,7 @@ import ru.practicum.main.event.dto.EventFullDto;
 import ru.practicum.main.event.dto.UpdateEventDto;
 import ru.practicum.main.event.model.EventState;
 import ru.practicum.main.event.service.EventService;
-import ru.practicum.main.util.markers.OnUpdateAdmin;
+import ru.practicum.main.validation.group.OnUpdateAdmin;
 
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;

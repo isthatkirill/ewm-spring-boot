@@ -6,9 +6,9 @@ import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
 import ru.practicum.main.event.validator.annotation.ValidEventDate;
 import ru.practicum.main.location.dto.LocationDto;
-import ru.practicum.main.util.markers.OnCreate;
-import ru.practicum.main.util.markers.OnUpdate;
-import ru.practicum.main.util.markers.OnUpdateAdmin;
+import ru.practicum.main.validation.group.OnCreate;
+import ru.practicum.main.validation.group.OnUpdate;
+import ru.practicum.main.validation.group.OnUpdateAdmin;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;

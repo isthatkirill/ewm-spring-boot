@@ -4,7 +4,6 @@ import ru.practicum.main.event.dto.EventFullDto;
 import ru.practicum.main.event.dto.EventShortDto;
 import ru.practicum.main.event.dto.NewEventDto;
 import ru.practicum.main.event.dto.UpdateEventDto;
-import ru.practicum.main.event.model.Event;
 import ru.practicum.main.event.model.EventSort;
 import ru.practicum.main.event.model.EventState;
 
@@ -32,7 +31,5 @@ public interface EventService {
     List<EventShortDto> getAllEventsByPublic(String text, List<Long> categories, Boolean paid, LocalDateTime rangeStart,
                                              LocalDateTime rangeEnd, Boolean onlyAvailable, EventSort sort, Integer from,
                                              Integer size, HttpServletRequest request);
-
-    List<EventShortDto> mapToShortDtoWithViewsAndRequests(List<Event> events);
 
 }

@@ -12,12 +12,14 @@ import ru.practicum.main.compilation.mapper.CompilationMapper;
 import ru.practicum.main.compilation.model.Compilation;
 import ru.practicum.main.compilation.repository.CompilationRepository;
 import ru.practicum.main.error.exception.EntityNotFoundException;
+import ru.practicum.main.event.dto.EventShortDto;
+import ru.practicum.main.event.mapper.EventMapper;
 import ru.practicum.main.event.model.Event;
 import ru.practicum.main.event.repository.EventRepository;
+import ru.practicum.main.event.service.StatService;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -27,6 +29,8 @@ public class CompilationServiceImpl implements CompilationService {
     private final CompilationRepository compilationRepository;
     private final EventRepository eventRepository;
     private final CompilationMapper compilationMapper;
+    private final EventMapper eventMapper;
+    private final StatService statService;
 
     @Override
     @Transactional
@@ -38,7 +42,7 @@ public class CompilationServiceImpl implements CompilationService {
         Set<Event> events = listToSet(eventRepository.findEventsByIdIn(compilationRequestDto.getEvents()));
         checkIfAllEventsFound(events.size(), compilationRequestDto.getEvents().size());
         Compilation compilation = compilationRepository.save(compilationMapper.toCompilation(compilationRequestDto, events));
-        return compilationMapper.toCompilationDto(compilation);
+        return compilationMapper.toCompilationDto(compilation, findViewsAndRequestsForEvents(events));
     }
 
     @Override
@@ -59,7 +63,7 @@ public class CompilationServiceImpl implements CompilationService {
             compilation.setEvents(events);
         }
 
-        return compilationMapper.toCompilationDto(compilationRepository.save(compilation));
+        return compilationMapper.toCompilationDto(compilation, findViewsAndRequestsForEvents(compilation.getEvents()));
     }
 
     @Override
@@ -74,7 +78,9 @@ public class CompilationServiceImpl implements CompilationService {
     @Transactional(readOnly = true)
     public CompilationResponseDto getById(Long compId) {
         log.info("Get compilation with id={}", compId);
-        return compilationMapper.toCompilationDto(checkIfCompExistsAndGet(compId));
+        Compilation compilation = checkIfCompExistsAndGet(compId);
+        Set<Event> events = compilation.getEvents();
+        return compilationMapper.toCompilationDto(compilation, findViewsAndRequestsForEvents(events));
     }
 
     @Override
@@ -85,7 +91,22 @@ public class CompilationServiceImpl implements CompilationService {
         List<Compilation> compilations = (pinned != null)
                 ? compilationRepository.findAllByPinnedIs(pinned, pageable)
                 : compilationRepository.findAll(pageable).toList();
-        return compilationMapper.toCompilationDto(compilations);
+
+        return compilations.stream()
+                .map(c -> compilationMapper.toCompilationDto(c, findViewsAndRequestsForEvents(c.getEvents())))
+                .collect(Collectors.toList());
+    }
+
+    private List<EventShortDto> findViewsAndRequestsForEvents(Set<Event> events) {
+        Map<Long, Long> views = statService.getViews(new ArrayList<>(events));
+        Map<Long, Long> confirmedRequests = statService.getConfirmedRequests(new ArrayList<>(events));
+
+        return events.stream()
+                .map(e -> eventMapper.toEventShortDto(
+                        e,
+                        confirmedRequests.getOrDefault(e.getId(), 0L),
+                        views.getOrDefault(e.getId(), 0L)))
+                .collect(Collectors.toList());
     }
 
     private Compilation checkIfCompExistsAndGet(Long compId) {

@@ -1,6 +1,7 @@
 package ru.practicum.main.event.repository;
 
 import ru.practicum.main.event.model.Event;
+import ru.practicum.main.event.model.EventSort;
 import ru.practicum.main.event.model.EventState;
 
 import java.time.LocalDateTime;
@@ -12,6 +13,6 @@ public interface CustomEventRepository {
                                   LocalDateTime rangeStart, LocalDateTime rangeEnd, Integer from, Integer size);
 
     List<Event> findEventsByPublic(String text, List<Long> categories, Boolean paid, LocalDateTime rangeStart,
-                                   LocalDateTime rangeEnd, Integer from, Integer size);
+                                   LocalDateTime rangeEnd, Integer from, Integer size, EventSort sort);
 
 }

@@ -19,9 +19,6 @@ import ru.practicum.main.request.repository.RequestRepository;
 import ru.practicum.main.user.model.User;
 import ru.practicum.main.user.repository.UserRepository;
 
-import javax.persistence.EntityManager;
-import javax.persistence.LockModeType;
-import javax.persistence.PersistenceContext;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -37,16 +34,11 @@ public class RequestServiceImpl implements RequestService {
     private final EventRepository eventRepository;
     private final RequestMapper requestMapper;
 
-    @PersistenceContext
-    EntityManager entityManager;
-
     @Override
     @Transactional
     public ParticipationRequestDto create(Long userId, Long eventId) {
         User user = checkIfUserExistsAndGet(userId);
         Event event = checkIfEventExistsAndGet(eventId);
-
-        entityManager.lock(event, LockModeType.OPTIMISTIC);
 
         checkIfNotRepeated(userId, eventId);
         checkIfNotOwnEvent(userId, event);
@@ -66,8 +58,6 @@ public class RequestServiceImpl implements RequestService {
 
         ParticipationRequestDto participationRequestDto = requestMapper
                 .toParticipationRequestDto(requestRepository.save(request));
-
-        entityManager.persist(event);
 
         log.info("Add new request --> id={}", request.getId());
         return participationRequestDto;
@@ -119,8 +109,6 @@ public class RequestServiceImpl implements RequestService {
         List<Request> confirmed = new ArrayList<>();
         List<Request> rejected = new ArrayList<>();
 
-        entityManager.lock(event, LockModeType.OPTIMISTIC);
-
         switch (updateRequest.getStatus()) {
             case REJECTED:
                 requests.forEach(r -> r.setStatus(RequestState.REJECTED));
@@ -132,8 +120,6 @@ public class RequestServiceImpl implements RequestService {
                 confirmed = requestRepository.saveAll(requests);
                 break;
         }
-
-        entityManager.persist(event);
 
         return new EventRequestStatusUpdateResultDto(
                 requestMapper.toParticipationRequestDto(confirmed),

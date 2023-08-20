@@ -158,7 +158,7 @@ public class EventServiceImpl implements EventService {
 
         checkIfStartBeforeEnd(rangeStart, rangeEnd);
 
-        List<Event> events = eventRepository.findEventsByPublic(text, categories, paid, rangeStart, rangeEnd, from, size);
+        List<Event> events = eventRepository.findEventsByPublic(text, categories, paid, rangeStart, rangeEnd, from, size, sort);
 
         Map<Long, Integer> eventLimits = new HashMap<>();
         events.forEach(e -> eventLimits.put(e.getId(), e.getParticipantLimit()));
@@ -171,15 +171,8 @@ public class EventServiceImpl implements EventService {
                     .collect(Collectors.toList());
         }
 
-        if (sort != null) {
-            switch (sort) {
-                case VIEWS:
-                    eventsWithViewsAndRequests.sort(Comparator.comparing(EventShortDto::getViews));
-                    break;
-                case EVENT_DATE:
-                    eventsWithViewsAndRequests.sort(Comparator.comparing(EventShortDto::getEventDate));
-                    break;
-            }
+        if (sort.equals(EventSort.VIEWS)) {
+            eventsWithViewsAndRequests.sort(Comparator.comparing(EventShortDto::getViews));
         }
 
         log.info("Get events by public with params: text={}, categories={}, paid={}, start={}, end={}, onlyAvailable={}," +
@@ -201,9 +194,7 @@ public class EventServiceImpl implements EventService {
                 .orElseThrow(() -> new EntityNotFoundException(Event.class, eventId));
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public List<EventShortDto> mapToShortDtoWithViewsAndRequests(List<Event> events) {
+    private List<EventShortDto> mapToShortDtoWithViewsAndRequests(List<Event> events) {
         Map<Long, Long> views = statService.getViews(events);
         Map<Long, Long> confirmedRequests = statService.getConfirmedRequests(events);
 

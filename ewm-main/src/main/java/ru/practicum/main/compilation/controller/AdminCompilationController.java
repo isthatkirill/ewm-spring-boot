@@ -7,8 +7,8 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.main.compilation.dto.CompilationRequestDto;
 import ru.practicum.main.compilation.dto.CompilationResponseDto;
 import ru.practicum.main.compilation.service.CompilationService;
-import ru.practicum.main.util.markers.OnCreate;
-import ru.practicum.main.util.markers.OnUpdate;
+import ru.practicum.main.validation.group.OnCreate;
+import ru.practicum.main.validation.group.OnUpdate;
 
 @Validated
 @RestController
