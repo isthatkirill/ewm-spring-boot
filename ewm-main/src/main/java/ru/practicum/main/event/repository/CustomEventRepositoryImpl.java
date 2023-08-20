@@ -77,8 +77,7 @@ public class CustomEventRepositoryImpl implements CustomEventRepository {
         predicate = cb.and(predicate, cb.equal(root.get("state"), EventState.PUBLISHED));
 
         query.select(root).where(predicate);
-
-        if (sort.equals(EventSort.EVENT_DATE)) {
+        if (sort != null && sort.equals(EventSort.EVENT_DATE)) {
             query.orderBy(cb.asc(root.get("eventDate")));
         }
 

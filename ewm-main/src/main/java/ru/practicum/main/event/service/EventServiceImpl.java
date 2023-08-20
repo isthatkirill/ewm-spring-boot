@@ -171,7 +171,7 @@ public class EventServiceImpl implements EventService {
                     .collect(Collectors.toList());
         }
 
-        if (sort.equals(EventSort.VIEWS)) {
+        if (sort != null && sort.equals(EventSort.VIEWS)) {
             eventsWithViewsAndRequests.sort(Comparator.comparing(EventShortDto::getViews));
         }
 
