@@ -158,12 +158,12 @@ public class RequestServiceImpl implements RequestService {
     }
 
     private Event checkIfOwnEventExistsAndGet(Long eventId, Long userId) {
-        return eventRepository.findEventByIdAndInitiatorId(eventId, userId)
+        return eventRepository.findByIdAndInitiatorIdAndLock(eventId, userId)
                 .orElseThrow(() -> new EntityNotFoundException(Event.class, eventId));
     }
 
     private Event checkIfEventExistsAndGet(Long eventId) {
-        return eventRepository.findById(eventId)
+        return eventRepository.findByIdAndLock(eventId)
                 .orElseThrow(() -> new EntityNotFoundException(Event.class, eventId));
     }
 

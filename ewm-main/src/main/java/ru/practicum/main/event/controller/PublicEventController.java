@@ -27,7 +27,7 @@ public class PublicEventController {
 
     @GetMapping("/{id}")
     public EventFullDto getEventByPublic(@PathVariable Long id, HttpServletRequest request) {
-        return eventService.getEventByPublic(id, request);
+        return eventService.getEventByPublic(id, request.getRequestURI(), request.getRemoteAddr());
     }
 
     @GetMapping
@@ -42,7 +42,7 @@ public class PublicEventController {
                                                     @RequestParam(required = false, defaultValue = "10") @Positive Integer size,
                                                     HttpServletRequest request) {
         return eventService.getAllEventsByPublic(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort,
-                from, size, request);
+                from, size, request.getRequestURI(), request.getRemoteAddr());
     }
 
 }

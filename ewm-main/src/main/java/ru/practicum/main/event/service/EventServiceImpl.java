@@ -26,7 +26,6 @@ import ru.practicum.main.request.repository.RequestRepository;
 import ru.practicum.main.user.model.User;
 import ru.practicum.main.user.repository.UserRepository;
 
-import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -143,10 +142,10 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional(readOnly = true)
-    public EventFullDto getEventByPublic(Long eventId, HttpServletRequest request) {
+    public EventFullDto getEventByPublic(Long eventId, String uri, String ip) {
         Event event = checkIfPublishedEventExistsAndGet(eventId);
         log.info("Get event with id={} by public", eventId);
-        statService.hit(request.getRequestURI(), request.getRemoteAddr());
+        statService.hit(uri, ip);
         return mapToFullDtoWithViewsAndRequests(event);
     }
 
@@ -154,7 +153,7 @@ public class EventServiceImpl implements EventService {
     @Transactional(readOnly = true)
     public List<EventShortDto> getAllEventsByPublic(String text, List<Long> categories, Boolean paid, LocalDateTime rangeStart,
                                                     LocalDateTime rangeEnd, Boolean onlyAvailable, EventSort sort, Integer from,
-                                                    Integer size, HttpServletRequest request) {
+                                                    Integer size, String uri, String ip) {
 
         checkIfStartBeforeEnd(rangeStart, rangeEnd);
 
@@ -178,7 +177,7 @@ public class EventServiceImpl implements EventService {
         log.info("Get events by public with params: text={}, categories={}, paid={}, start={}, end={}, onlyAvailable={}," +
                 "sort={}, from={}, size={}", text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size);
 
-        statService.hit(request.getRequestURI(), request.getRemoteAddr());
+        statService.hit(uri, ip);
 
         return eventsWithViewsAndRequests;
     }
