@@ -6,7 +6,7 @@ create table if not exists endpoint_hits (
     created TIMESTAMP NOT NULL
 );
 
-CREATE INDEX idx_endpoint_hits_app ON endpoint_hits (app);
-CREATE INDEX idx_endpoint_hits_ip ON endpoint_hits (ip);
-CREATE INDEX idx_endpoint_hits_uri ON endpoint_hits (uri);
-CREATE INDEX idx_endpoint_hits_created ON endpoint_hits (created);
+create index IF NOT EXISTS idx_endpoint_hits_app ON endpoint_hits (app);
+create index IF NOT EXISTS idx_endpoint_hits_ip ON endpoint_hits (ip);
+create index IF NOT EXISTS idx_endpoint_hits_uri ON endpoint_hits (uri);
+create index IF NOT EXISTS idx_endpoint_hits_created ON endpoint_hits (created);
