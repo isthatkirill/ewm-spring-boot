@@ -8,6 +8,8 @@ import ru.practicum.main.comment.model.Comment;
 import ru.practicum.main.event.model.Event;
 import ru.practicum.main.user.model.User;
 
+import java.util.List;
+
 @Mapper(componentModel = "spring")
 public interface CommentMapper {
 
@@ -19,5 +21,7 @@ public interface CommentMapper {
     @Mapping(target = "authorId", source = "author.id")
     @Mapping(target = "eventId", source = "event.id")
     ResponseCommentDto toResponseCommentDto(Comment comment);
+
+    List<ResponseCommentDto> toResponseCommentDto(List<Comment> comments);
 
 }

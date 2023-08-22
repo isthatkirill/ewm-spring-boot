@@ -9,6 +9,7 @@ import ru.practicum.main.comment.dto.ResponseCommentDto;
 import ru.practicum.main.comment.service.CommentService;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @Validated
 @RestController
@@ -31,5 +32,20 @@ public class PrivateCommentController {
         return commentService.update(newComment, userId, commentId);
     }
 
+    @GetMapping("/{commentId}")
+    public ResponseCommentDto getByIdByUser(@PathVariable Long userId, @PathVariable Long commentId) {
+        return commentService.getByIdByUser(userId, commentId);
+    }
+
+    @GetMapping
+    public List<ResponseCommentDto> getUsersComments(@PathVariable Long userId) {
+        return commentService.getUsersComments(userId);
+    }
+
+    @DeleteMapping("/{commentId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteByIdByUser(@PathVariable Long userId, @PathVariable Long commentId) {
+        commentService.deleteByIdByUser(userId, commentId);
+    }
 
 }

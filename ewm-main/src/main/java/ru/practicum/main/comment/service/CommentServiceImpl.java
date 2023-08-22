@@ -3,6 +3,7 @@ package ru.practicum.main.comment.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.main.comment.dto.RequestCommentDto;
 import ru.practicum.main.comment.dto.ResponseCommentDto;
 import ru.practicum.main.comment.mapper.CommentMapper;
@@ -16,6 +17,8 @@ import ru.practicum.main.event.repository.EventRepository;
 import ru.practicum.main.user.model.User;
 import ru.practicum.main.user.repository.UserRepository;
 
+import java.util.List;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -27,6 +30,7 @@ public class CommentServiceImpl implements CommentService {
     private final CommentMapper commentMapper;
 
     @Override
+    @Transactional
     public ResponseCommentDto create(RequestCommentDto newComment, Long userId, Long eventId) {
         log.info("Add new comment by user id={} for event id={} --> {}", userId, eventId, newComment);
 
@@ -39,6 +43,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
+    @Transactional
     public ResponseCommentDto update(RequestCommentDto newComment, Long userId, Long commentId) {
         log.info("Update comment id={} by user id={} --> {}", commentId, userId, newComment);
 
@@ -49,13 +54,70 @@ public class CommentServiceImpl implements CommentService {
         return commentMapper.toResponseCommentDto(commentRepository.save(comment));
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public ResponseCommentDto getByIdByUser(Long userId, Long commentId) {
+        log.info("User id={} requested his own comment id={}", userId, commentId);
+        return commentMapper.toResponseCommentDto(checkIfOwnCommentExistsAndGet(userId, commentId));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ResponseCommentDto> getUsersComments(Long userId) {
+        log.info("User id={} requested all his comments", userId);
+        return commentMapper.toResponseCommentDto(commentRepository.getCommentsByAuthorId(userId));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ResponseCommentDto getByIdByAdmin(Long commentId) {
+        log.info("Get comment id={} by admin", commentId);
+        return commentMapper.toResponseCommentDto(checkIfCommentExistsAndGet(commentId));
+    }
+
+
+    @Override
+    @Transactional
+    public void deleteByIdByAdmin(Long commentId) {
+        log.info("Delete comment id={} by admin", commentId);
+        checkIfCommentExists(commentId);
+        commentRepository.deleteById(commentId);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ResponseCommentDto> getAllCommentsForEvent(Long eventId, String keyword, Integer from, Integer size) {
+        log.info("Requested all comments for event id={} with filter params keyword={},  from={}, size={}",
+                eventId, keyword, from, size);
+        return commentMapper.toResponseCommentDto(commentRepository
+                .findAllCommentsForEvent(eventId, keyword, from, size));
+    }
+
+    @Override
+    @Transactional
+    public void deleteByIdByUser(Long userId, Long commentId) {
+        checkIfOwnCommentExistsAndGet(userId, commentId);
+        log.info("Delete comment id={} by user id={}", commentId, userId);
+        commentRepository.deleteById(commentId);
+    }
+
     private Comment checkIfOwnCommentExistsAndGet(Long userId, Long commentId) {
-        Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new EntityNotFoundException(Comment.class, commentId));
+        Comment comment = checkIfCommentExistsAndGet(commentId);
         if (!comment.getAuthor().getId().equals(userId)) {
-            throw new ForbiddenException("Cannot update not own comment");
+            throw new ForbiddenException("Cannot operate with not own comment");
         }
         return comment;
+    }
+
+    private Comment checkIfCommentExistsAndGet(Long commentId) {
+        return commentRepository.findById(commentId)
+                .orElseThrow(() -> new EntityNotFoundException(Comment.class, commentId));
+    }
+
+    private void checkIfCommentExists(Long commentId) {
+        if (!commentRepository.existsById(commentId)) {
+            throw new EntityNotFoundException(Comment.class, commentId);
+        }
     }
 
     private User checkIfUserExistsAndGet(Long userId) {
