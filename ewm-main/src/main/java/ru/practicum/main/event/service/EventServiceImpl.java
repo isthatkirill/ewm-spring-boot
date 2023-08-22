@@ -61,7 +61,7 @@ public class EventServiceImpl implements EventService {
         Location location = findLocation(locationMapper.toLocation(newEventDto.getLocation()));
 
         Event event = eventMapper.toEvent(newEventDto, initiator, category, location, EventState.PENDING);
-        log.info("Create new event --> id={}, ", event.getId());
+        log.info("Create new event --> title={}, ", newEventDto.getTitle());
 
         return mapToFullDtoWithViewsAndRequests(eventRepository.save(event));
     }

@@ -1,10 +1,12 @@
 package ru.practicum.main.comment.service;
 
-import ru.practicum.main.comment.dto.CommentFullDto;
-import ru.practicum.main.comment.dto.NewCommentDto;
+import ru.practicum.main.comment.dto.RequestCommentDto;
+import ru.practicum.main.comment.dto.ResponseCommentDto;
 
 public interface CommentService {
 
-    CommentFullDto create(NewCommentDto newComment, Long userId, Long eventId);
+    ResponseCommentDto create(RequestCommentDto newComment, Long userId, Long eventId);
+
+    ResponseCommentDto update(RequestCommentDto newComment, Long userId, Long commentId);
 
 }

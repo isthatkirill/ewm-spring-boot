@@ -15,7 +15,7 @@ import static ru.practicum.main.util.Formats.DATE_PATTERN;
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class CommentFullDto {
+public class ResponseCommentDto {
 
     Long id;
     String message;
