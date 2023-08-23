@@ -1,6 +1,7 @@
 package ru.practicum.main.comment.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.main.comment.dto.ResponseCommentDto;
 import ru.practicum.main.comment.service.CommentService;
@@ -9,6 +10,7 @@ import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
+@Validated
 @RestController
 @RequestMapping("/comments/{eventId}")
 @RequiredArgsConstructor

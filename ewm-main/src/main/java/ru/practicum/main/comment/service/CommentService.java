@@ -1,6 +1,5 @@
 package ru.practicum.main.comment.service;
 
-import org.springframework.web.bind.annotation.PathVariable;
 import ru.practicum.main.comment.dto.RequestCommentDto;
 import ru.practicum.main.comment.dto.ResponseCommentDto;
 
@@ -20,7 +19,7 @@ public interface CommentService {
 
     ResponseCommentDto getByIdByAdmin(Long commentId);
 
-    void deleteByIdByAdmin(@PathVariable Long commentId);
+    void deleteByIdByAdmin(Long commentId);
 
     List<ResponseCommentDto> getAllCommentsForEvent(Long eventId, String keyword, Integer from, Integer size);
 
