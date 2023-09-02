@@ -81,13 +81,15 @@ class UserAdminControllerTest {
     @Test
     @SneakyThrows
     void deleteTest() {
-        mvc.perform(delete("/admin/users/{userId}", anyLong())
+        Long userId = 1L;
+
+        mvc.perform(delete("/admin/users/{userId}", userId)
                         .characterEncoding(StandardCharsets.UTF_8)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent())
                 .andExpect(content().string(""));
 
-        verify(userService, times(1)).delete(anyLong());
+        verify(userService, times(1)).delete(userId);
     }
 
     @Test
