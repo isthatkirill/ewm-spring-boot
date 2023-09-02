@@ -33,7 +33,7 @@ class CategoryAdminControllerTest {
 
     private NewCategoryDto newCategoryDto;
 
-    private CategoryDto categoryDto = CategoryDto.builder()
+    private final CategoryDto categoryDto = CategoryDto.builder()
             .id(1L)
             .name("name")
             .build();

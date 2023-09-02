@@ -98,8 +98,8 @@ class UserAdminControllerTest {
         when(userService.getUsers(anyList(), anyInt(), anyInt()))
                 .thenReturn(List.of(userDto));
 
-        int from = 0;
-        int size = 10;
+        Integer from = 0;
+        Integer size = 4;
         List<Long> ids = Collections.singletonList(1L);
 
         mvc.perform(get("/admin/users")
@@ -122,8 +122,8 @@ class UserAdminControllerTest {
         when(userService.getUsers(anyList(), anyInt(), anyInt()))
                 .thenReturn(List.of(userDto));
 
-        int from = Integer.MIN_VALUE;
-        int size = 10;
+        Integer from = Integer.MIN_VALUE;
+        Integer size = 10;
         List<Long> ids = Collections.singletonList(1L);
 
         mvc.perform(get("/admin/users")

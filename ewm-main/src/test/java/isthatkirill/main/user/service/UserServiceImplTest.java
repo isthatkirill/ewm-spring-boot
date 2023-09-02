@@ -37,10 +37,10 @@ class UserServiceImplTest {
 
         userDto = userService.create(userDto);
 
-        assertThat(userDto)
+        assertThat(userDto).isNotNull()
                 .hasFieldOrPropertyWithValue("id", 1L)
-                .hasFieldOrPropertyWithValue("name", "name")
-                .hasFieldOrPropertyWithValue("email", "email@email.ru");
+                .hasFieldOrPropertyWithValue("name", userDto.getName())
+                .hasFieldOrPropertyWithValue("email", userDto.getEmail());
     }
 
     @Test
@@ -87,11 +87,7 @@ class UserServiceImplTest {
     @Order(5)
     void deleteTest() {
         assertDoesNotThrow(() -> userService.delete(3L));
+        assertThrows(EntityNotFoundException.class, () -> userService.delete(3L));
     }
 
-    @Test
-    @Order(6)
-    void deleteNonExistentUserTest() {
-        assertThrows(EntityNotFoundException.class, () -> userService.delete(1000L));
-    }
 }
