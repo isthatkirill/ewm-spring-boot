@@ -29,8 +29,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(controllers = AdminEventController.class)
 class AdminEventControllerTest {
@@ -73,6 +72,7 @@ class AdminEventControllerTest {
                 .paid(updateEventDto.getPaid())
                 .createdOn(LocalDateTime.now())
                 .confirmedRequests(200L)
+                .views(200L)
                 .initiator(UserShortDto.builder().id(1L).name("user_name").build())
                 .participantLimit(updateEventDto.getParticipantLimit())
                 .requestModeration(updateEventDto.getRequestModeration())
@@ -92,6 +92,7 @@ class AdminEventControllerTest {
                         .characterEncoding(StandardCharsets.UTF_8)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.description").value(eventFullDto.getDescription()))
                 .andExpect(jsonPath("$.annotation").value(eventFullDto.getAnnotation()))
                 .andExpect(jsonPath("$.eventDate").value(eventFullDto.getEventDate().format(formatter)))
@@ -103,6 +104,7 @@ class AdminEventControllerTest {
                 .andExpect(jsonPath("$.initiator").value(eventFullDto.getInitiator()))
                 .andExpect(jsonPath("$.participantLimit").value(eventFullDto.getParticipantLimit()))
                 .andExpect(jsonPath("$.requestModeration").value(eventFullDto.getRequestModeration()))
+                .andExpect(jsonPath("$.views").value(eventFullDto.getViews()))
                 .andExpect(jsonPath("$.title").value(eventFullDto.getTitle()))
                 .andExpect(jsonPath("$.state").value(eventFullDto.getState().name()));
 
@@ -121,6 +123,7 @@ class AdminEventControllerTest {
                         .characterEncoding(StandardCharsets.UTF_8)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.reason").value("Incorrectly made request"));
 
         verify(eventService, never()).updateByAdmin(any(), anyLong());
@@ -138,6 +141,7 @@ class AdminEventControllerTest {
                         .characterEncoding(StandardCharsets.UTF_8)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.reason").value("Incorrectly made request"));
 
         verify(eventService, never()).updateByAdmin(any(), anyLong());
@@ -155,6 +159,7 @@ class AdminEventControllerTest {
                         .characterEncoding(StandardCharsets.UTF_8)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.reason").value("Incorrectly made request"));
 
         verify(eventService, never()).updateByAdmin(any(), anyLong());
@@ -172,6 +177,7 @@ class AdminEventControllerTest {
                         .characterEncoding(StandardCharsets.UTF_8)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.reason").value("Incorrectly made request"));
 
         verify(eventService, never()).updateByAdmin(any(), anyLong());
@@ -189,6 +195,7 @@ class AdminEventControllerTest {
                         .characterEncoding(StandardCharsets.UTF_8)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.reason").value("Incorrectly made request"));
 
         verify(eventService, never()).updateByAdmin(any(), anyLong());
@@ -221,6 +228,7 @@ class AdminEventControllerTest {
                         .characterEncoding(StandardCharsets.UTF_8)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$[0].description").value(eventFullDto.getDescription()))
                 .andExpect(jsonPath("$[0].annotation").value(eventFullDto.getAnnotation()))
                 .andExpect(jsonPath("$[0].eventDate").value(eventFullDto.getEventDate().format(formatter)))
@@ -230,6 +238,7 @@ class AdminEventControllerTest {
                 .andExpect(jsonPath("$[0].participantLimit").value(eventFullDto.getParticipantLimit()))
                 .andExpect(jsonPath("$[0].requestModeration").value(eventFullDto.getRequestModeration()))
                 .andExpect(jsonPath("$[0].title").value(eventFullDto.getTitle()))
+                .andExpect(jsonPath("$[0].views").value(eventFullDto.getViews()))
                 .andExpect(jsonPath("$[0].confirmedRequests").value(eventFullDto.getConfirmedRequests()))
                 .andExpect(jsonPath("$[0].createdOn").value(eventFullDto.getCreatedOn().format(formatter)))
                 .andExpect(jsonPath("$[0].initiator").value(eventFullDto.getInitiator()))
@@ -255,6 +264,7 @@ class AdminEventControllerTest {
                         .characterEncoding(StandardCharsets.UTF_8)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$[0].description").value(eventFullDto.getDescription()))
                 .andExpect(jsonPath("$[0].annotation").value(eventFullDto.getAnnotation()))
                 .andExpect(jsonPath("$[0].eventDate").value(eventFullDto.getEventDate().format(formatter)))
@@ -264,6 +274,7 @@ class AdminEventControllerTest {
                 .andExpect(jsonPath("$[0].participantLimit").value(eventFullDto.getParticipantLimit()))
                 .andExpect(jsonPath("$[0].requestModeration").value(eventFullDto.getRequestModeration()))
                 .andExpect(jsonPath("$[0].title").value(eventFullDto.getTitle()))
+                .andExpect(jsonPath("$[0].views").value(eventFullDto.getViews()))
                 .andExpect(jsonPath("$[0].confirmedRequests").value(eventFullDto.getConfirmedRequests()))
                 .andExpect(jsonPath("$[0].createdOn").value(eventFullDto.getCreatedOn().format(formatter)))
                 .andExpect(jsonPath("$[0].initiator").value(eventFullDto.getInitiator()))
@@ -290,6 +301,7 @@ class AdminEventControllerTest {
                         .characterEncoding(StandardCharsets.UTF_8)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.reason").value("Incorrectly made request"));
 
         verify(eventService, never())

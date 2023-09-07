@@ -26,8 +26,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(controllers = PublicEventController.class)
 class PublicEventControllerTest {
@@ -49,6 +48,7 @@ class PublicEventControllerTest {
             .confirmedRequests(200L)
             .initiator(UserShortDto.builder().id(1L).name("user_name").build())
             .participantLimit(100)
+            .views(200L)
             .requestModeration(false)
             .title("title_at_least_3_char")
             .state(EventState.PUBLISHED)
@@ -75,6 +75,7 @@ class PublicEventControllerTest {
                         .characterEncoding(StandardCharsets.UTF_8)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.description").value(eventFullDto.getDescription()))
                 .andExpect(jsonPath("$.annotation").value(eventFullDto.getAnnotation()))
                 .andExpect(jsonPath("$.eventDate").value(eventFullDto.getEventDate().format(formatter)))
@@ -87,6 +88,7 @@ class PublicEventControllerTest {
                 .andExpect(jsonPath("$.confirmedRequests").value(eventFullDto.getConfirmedRequests()))
                 .andExpect(jsonPath("$.createdOn").value(eventFullDto.getCreatedOn().format(formatter)))
                 .andExpect(jsonPath("$.initiator").value(eventFullDto.getInitiator()))
+                .andExpect(jsonPath("$.views").value(eventFullDto.getViews()))
                 .andExpect(jsonPath("$.state").value(eventFullDto.getState().name()));
 
         verify(eventService, times(1)).getEventByPublic(eventId, requestURI, remoteAddr);
@@ -128,6 +130,7 @@ class PublicEventControllerTest {
                         .characterEncoding(StandardCharsets.UTF_8)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$[0].description").value(eventFullDto.getDescription()))
                 .andExpect(jsonPath("$[0].annotation").value(eventFullDto.getAnnotation()))
                 .andExpect(jsonPath("$[0].eventDate").value(eventFullDto.getEventDate().format(formatter)))
@@ -140,6 +143,7 @@ class PublicEventControllerTest {
                 .andExpect(jsonPath("$[0].confirmedRequests").value(eventFullDto.getConfirmedRequests()))
                 .andExpect(jsonPath("$[0].createdOn").value(eventFullDto.getCreatedOn().format(formatter)))
                 .andExpect(jsonPath("$[0].initiator").value(eventFullDto.getInitiator()))
+                .andExpect(jsonPath("$[0].views").value(eventFullDto.getViews()))
                 .andExpect(jsonPath("$[0].state").value(eventFullDto.getState().name()));
 
         verify(eventService, times(1)).getAllEventsByPublic(text, categories, paid,
@@ -168,6 +172,7 @@ class PublicEventControllerTest {
                         .characterEncoding(StandardCharsets.UTF_8)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$[0].description").value(eventFullDto.getDescription()))
                 .andExpect(jsonPath("$[0].annotation").value(eventFullDto.getAnnotation()))
                 .andExpect(jsonPath("$[0].eventDate").value(eventFullDto.getEventDate().format(formatter)))
@@ -180,6 +185,7 @@ class PublicEventControllerTest {
                 .andExpect(jsonPath("$[0].confirmedRequests").value(eventFullDto.getConfirmedRequests()))
                 .andExpect(jsonPath("$[0].createdOn").value(eventFullDto.getCreatedOn().format(formatter)))
                 .andExpect(jsonPath("$[0].initiator").value(eventFullDto.getInitiator()))
+                .andExpect(jsonPath("$[0].views").value(eventFullDto.getViews()))
                 .andExpect(jsonPath("$[0].state").value(eventFullDto.getState().name()));
 
         verify(eventService, times(1)).getAllEventsByPublic(null, null, null,
@@ -202,6 +208,7 @@ class PublicEventControllerTest {
                         .characterEncoding(StandardCharsets.UTF_8)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.reason").value("Incorrectly made request"));
 
         verify(eventService, never()).getAllEventsByPublic(any(), any(), any(), any(),
