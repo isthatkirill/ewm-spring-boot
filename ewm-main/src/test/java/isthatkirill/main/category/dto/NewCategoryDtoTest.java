@@ -1,7 +1,6 @@
 package isthatkirill.main.category.dto;
 
 import lombok.SneakyThrows;
-
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -11,7 +10,7 @@ import org.springframework.boot.test.autoconfigure.json.JsonTest;
 import org.springframework.boot.test.json.JacksonTester;
 import org.springframework.boot.test.json.JsonContent;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @JsonTest
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
