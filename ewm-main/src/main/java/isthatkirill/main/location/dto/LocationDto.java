@@ -5,8 +5,7 @@ import lombok.experimental.FieldDefaults;
 
 import javax.validation.constraints.NotNull;
 
-@Getter
-@Setter
+@Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor

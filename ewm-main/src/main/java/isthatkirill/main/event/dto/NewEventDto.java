@@ -51,7 +51,7 @@ public class NewEventDto {
 
     Boolean paid;
 
-    @PositiveOrZero(message = "ParticipantLimit cannot be negative")
+    @PositiveOrZero(message = "ParticipantLimit cannot be negative", groups = {OnCreate.class, OnUpdate.class, OnUpdateAdmin.class})
     Integer participantLimit;
 
     Boolean requestModeration;

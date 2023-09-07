@@ -5,9 +5,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
 
-@Getter
-@Setter
-@ToString
+@Data
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
