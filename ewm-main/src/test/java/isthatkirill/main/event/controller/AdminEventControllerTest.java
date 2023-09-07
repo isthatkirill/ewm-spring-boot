@@ -47,7 +47,7 @@ class AdminEventControllerTest {
     private UpdateEventDto updateEventDto;
     private EventFullDto eventFullDto;
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATE_PATTERN);
-    private final Long entitiesId = 1L;
+    private final Long eventId = 1L;
 
     @BeforeEach
     void buildUpdateEventDto() {
@@ -63,16 +63,30 @@ class AdminEventControllerTest {
                 .title("title_at_least_3_char")
                 .stateAction(EventStateAction.PUBLISH_EVENT)
                 .build();
+
+        eventFullDto = EventFullDto.builder()
+                .description(updateEventDto.getDescription())
+                .annotation(updateEventDto.getAnnotation())
+                .eventDate(updateEventDto.getEventDate())
+                .category(CategoryDto.builder().id(updateEventDto.getCategory()).name("cat_name").build())
+                .location(updateEventDto.getLocation())
+                .paid(updateEventDto.getPaid())
+                .createdOn(LocalDateTime.now())
+                .confirmedRequests(200L)
+                .initiator(UserShortDto.builder().id(1L).name("user_name").build())
+                .participantLimit(updateEventDto.getParticipantLimit())
+                .requestModeration(updateEventDto.getRequestModeration())
+                .title(updateEventDto.getTitle())
+                .state(EventState.PUBLISHED)
+                .build();
     }
 
     @Test
     @SneakyThrows
     void updateByAdminTest() {
-        buildEventFullDto();
-
         when(eventService.updateByAdmin(any(), anyLong())).thenReturn(eventFullDto);
 
-        mvc.perform(patch("/admin/events/{eventId}", entitiesId)
+        mvc.perform(patch("/admin/events/{eventId}", eventId)
                         .content(objectMapper.writeValueAsString(updateEventDto))
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -92,7 +106,7 @@ class AdminEventControllerTest {
                 .andExpect(jsonPath("$.title").value(eventFullDto.getTitle()))
                 .andExpect(jsonPath("$.state").value(eventFullDto.getState().name()));
 
-        verify(eventService, times(1)).updateByAdmin(updateEventDto, entitiesId);
+        verify(eventService, times(1)).updateByAdmin(updateEventDto, eventId);
     }
 
     @Test
@@ -101,7 +115,7 @@ class AdminEventControllerTest {
         updateEventDto.setAnnotation("annotation");
         when(eventService.updateByAdmin(any(), anyLong())).thenReturn(eventFullDto);
 
-        mvc.perform(patch("/admin/events/{eventId}", entitiesId)
+        mvc.perform(patch("/admin/events/{eventId}", eventId)
                         .content(objectMapper.writeValueAsString(updateEventDto))
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -118,7 +132,7 @@ class AdminEventControllerTest {
         updateEventDto.setDescription("description");
         when(eventService.updateByAdmin(any(), anyLong())).thenReturn(eventFullDto);
 
-        mvc.perform(patch("/admin/events/{eventId}", entitiesId)
+        mvc.perform(patch("/admin/events/{eventId}", eventId)
                         .content(objectMapper.writeValueAsString(updateEventDto))
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -135,7 +149,7 @@ class AdminEventControllerTest {
         updateEventDto.setEventDate(LocalDateTime.now().plusHours(1));
         when(eventService.updateByAdmin(any(), anyLong())).thenReturn(eventFullDto);
 
-        mvc.perform(patch("/admin/events/{eventId}", entitiesId)
+        mvc.perform(patch("/admin/events/{eventId}", eventId)
                         .content(objectMapper.writeValueAsString(updateEventDto))
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -152,7 +166,7 @@ class AdminEventControllerTest {
         updateEventDto.setParticipantLimit(-1);
         when(eventService.updateByAdmin(any(), anyLong())).thenReturn(eventFullDto);
 
-        mvc.perform(patch("/admin/events/{eventId}", entitiesId)
+        mvc.perform(patch("/admin/events/{eventId}", eventId)
                         .content(objectMapper.writeValueAsString(updateEventDto))
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -169,7 +183,7 @@ class AdminEventControllerTest {
         updateEventDto.setTitle("t");
         when(eventService.updateByAdmin(any(), anyLong())).thenReturn(eventFullDto);
 
-        mvc.perform(patch("/admin/events/{eventId}", entitiesId)
+        mvc.perform(patch("/admin/events/{eventId}", eventId)
                         .content(objectMapper.writeValueAsString(updateEventDto))
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -190,7 +204,6 @@ class AdminEventControllerTest {
         String end = LocalDateTime.now().plusDays(5).format(formatter);
         Integer from = 2;
         Integer size = 3;
-        buildEventFullDto();
 
         when(eventService.getAllEventsByAdmin(
                 anyList(), anyList(), anyList(),
@@ -230,7 +243,6 @@ class AdminEventControllerTest {
     @Test
     @SneakyThrows
     void getAllEventsByAdminWithoutParamsTest() {
-        buildEventFullDto();
         Integer defaultFrom = 0;
         Integer defaultSize = 10;
 
@@ -261,21 +273,27 @@ class AdminEventControllerTest {
                 .getAllEventsByAdmin(null, null, null, null, null, defaultFrom, defaultSize);
     }
 
-    void buildEventFullDto() {
-        eventFullDto = EventFullDto.builder()
-                .description(updateEventDto.getDescription())
-                .annotation(updateEventDto.getAnnotation())
-                .eventDate(updateEventDto.getEventDate())
-                .category(CategoryDto.builder().id(updateEventDto.getCategory()).name("cat_name").build())
-                .location(updateEventDto.getLocation())
-                .paid(updateEventDto.getPaid())
-                .createdOn(LocalDateTime.now())
-                .confirmedRequests(200L)
-                .initiator(UserShortDto.builder().id(1L).name("user_name").build())
-                .participantLimit(updateEventDto.getParticipantLimit())
-                .requestModeration(updateEventDto.getRequestModeration())
-                .title(updateEventDto.getTitle())
-                .state(EventState.PUBLISHED)
-                .build();
+    @Test
+    @SneakyThrows
+    void getAllEventsByAdminWithBadPramsTest() {
+        Integer from = -1000;
+        Integer size = 10;
+
+        when(eventService.getAllEventsByAdmin(
+                any(), any(), any(),
+                any(), any(), anyInt(), anyInt()
+        )).thenReturn(List.of(eventFullDto));
+
+        mvc.perform(get("/admin/events")
+                        .param("from", from.toString())
+                        .param("size", size.toString())
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.reason").value("Incorrectly made request"));
+
+        verify(eventService, never())
+                .getAllEventsByAdmin(any(), any(), any(), any(), any(), anyInt(), anyInt());
     }
+
 }
