@@ -216,14 +216,14 @@ class EventRepositoryTest {
 
         List<Event> events = eventRepository.findEventsByPublic(text, null, null, null, null, from, size, sort);
 
-        assertThat(events).hasSize(5)
+        assertThat(events).hasSize(6)
                 .extracting(Event::getAnnotation)
-                .containsExactly("c++", "Prolog", "CSS", "Javascript", "HTML");
+                .containsExactly("c++", "Prolog", "CSS", "Javascript", "HTML", "Spring Data JPA");
     }
 
     @Test
     void tryToFindNonPublishedEventsByPublicWithTextTest() {
-        String text = "Spring";
+        String text = "Spring Sec";
         Integer from = 0;
         Integer size = 10;
         EventSort sort = EventSort.EVENT_DATE;

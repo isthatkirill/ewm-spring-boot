@@ -26,10 +26,10 @@ INSERT INTO events (annotation, created_on, description, event_date, paid, parti
 ('NASM', NOW(), 'NASM conference', NOW() + INTERVAL '5' DAY, true, 3, true, NULL, 'NASM conference title', 'CANCELED', 3, 1, 2), -- id=3
 ('Prolog', NOW(), 'Prolog conference', NOW() + INTERVAL '5' DAY, false, 3, false, NOW(), 'Prolog conference title', 'PUBLISHED', 4, 1, 2), -- id=4
 ('Lisp', NOW(), 'Lisp conference', NOW() + INTERVAL '5' DAY, false, 3, true, null, 'Lisp conference title', 'PENDING', 5, 1, 2), -- id=5
-('CSS', NOW(), 'CSS conference', NOW() + INTERVAL '5' DAY, false, 2, false, NOW(), 'CSS conference title', 'PUBLISHED', 6, 2, 3), -- id=6
+('CSS', NOW(), 'CSS conference', NOW() + INTERVAL '5' DAY, false, 2, true, NOW(), 'CSS conference title', 'PUBLISHED', 6, 2, 3), -- id=6
 ('Javascript', NOW(), 'Javascript conference', NOW() + INTERVAL '5' DAY, false, 2, false, NOW(), 'Javascript conference title', 'PUBLISHED', 6, 3, 3), -- id=7
 ('HTML', NOW(), 'HTML conference', NOW() + INTERVAL '5' DAY, false, 4, false, NOW(), 'HTML conference title', 'PUBLISHED', 6, 4, 3), -- id=8
-('Spring Data JPA', NOW(), 'Spring Data JPA conference', NOW() + INTERVAL '6' DAY, true, 4, true, null, 'Spring Data JPA conference title', 'PENDING', 7, 4, 4), -- id=9
+('Spring Data JPA', NOW(), 'Spring Data JPA conference', NOW() + INTERVAL '6' DAY, true, 4, true, NOW(), 'Spring Data JPA conference title', 'PUBLISHED', 7, 4, 4), -- id=9
 ('Spring Security', NOW(), 'Spring Security conference', NOW() + INTERVAL '7' DAY, true, 4, true, null, 'Spring Security conference title', 'PENDING', 7, 5, 4), -- id=10
 ('Spring Boot', NOW(), 'Spring Boot conference', NOW() + INTERVAL '8' DAY, true, 4, true, null, 'Spring Boot conference title', 'PENDING', 7, 5, 4), -- id=11
 ('Spring MVC', NOW(), 'Spring MVC conference', NOW() + INTERVAL '8' DAY, true, 1000, true, null, 'Spring MVC conference title', 'CANCELED', 7, 5, 4); -- id=12

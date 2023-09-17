@@ -48,8 +48,9 @@ class EventServiceImplTest {
     @MockBean
     private RequestRepository requestRepository;
 
-    private Long currentEventId = 13L; //test-events.sql contains previous 12 events
     private final Long mockViewsRequests = 0L;
+
+    //currentEventId = 13 --> test-events.sql contains previous 12 events
 
     @BeforeAll
     public void configureMock() {
@@ -63,6 +64,7 @@ class EventServiceImplTest {
     void createTest() {
         Long userId = 1L;
         Long categoryId = 1L;
+        Long eventId = 13L;
 
         NewEventDto newEventDto = NewEventDto.builder()
                 .annotation("event_created_via_eventService")
@@ -79,7 +81,7 @@ class EventServiceImplTest {
         EventFullDto eventFullDto = eventService.create(newEventDto, userId);
 
         assertThat(eventFullDto).isNotNull()
-                .hasFieldOrPropertyWithValue("id", currentEventId)
+                .hasFieldOrPropertyWithValue("id", eventId)
                 .hasFieldOrPropertyWithValue("description", newEventDto.getDescription())
                 .hasFieldOrPropertyWithValue("annotation", newEventDto.getAnnotation())
                 .hasFieldOrPropertyWithValue("category.id", newEventDto.getCategory())
@@ -98,8 +100,6 @@ class EventServiceImplTest {
 
         verify(statService, times(1)).getViews(anyList());
         verify(statService, times(1)).getConfirmedRequests(anyList());
-
-        currentEventId++;
     }
 
     @Test
@@ -124,8 +124,6 @@ class EventServiceImplTest {
 
         verify(statService, never()).getViews(anyList());
         verify(statService, never()).getConfirmedRequests(anyList());
-
-        currentEventId++;
     }
 
     @Test
@@ -150,8 +148,6 @@ class EventServiceImplTest {
 
         verify(statService, never()).getViews(anyList());
         verify(statService, never()).getConfirmedRequests(anyList());
-
-        currentEventId++;
     }
 
     @Test
@@ -466,9 +462,9 @@ class EventServiceImplTest {
         List<EventShortDto> events = eventService.getAllEventsByPublic(text, null, null, null, null,
                 true, sort, from, size, uri, ip);
 
-        assertThat(events).hasSize(6)
+        assertThat(events).hasSize(7)
                 .extracting(EventShortDto::getId)
-                .containsExactly(1L, 2L, 4L, 6L, 7L, 8L);
+                .containsExactly(1L, 2L, 4L, 6L, 7L, 8L, 9L);
 
         verify(statService, times(1)).getViews(anyList());
         verify(statService, times(1)).getConfirmedRequests(anyList());
@@ -484,7 +480,8 @@ class EventServiceImplTest {
                 4L, 8L,
                 6L, 2L,
                 7L, 10L,
-                8L, 15L);
+                8L, 15L,
+                9L, 100L);
 
         when(statService.getViews(any())).thenReturn(views);
 
@@ -498,9 +495,9 @@ class EventServiceImplTest {
         List<EventShortDto> events = eventService.getAllEventsByPublic(text, null, null, null, null,
                 false, sort, from, size, uri, ip);
 
-        assertThat(events).hasSize(6)
+        assertThat(events).hasSize(7)
                 .extracting(EventShortDto::getId)
-                .containsExactly(2L, 6L, 1L, 4L, 7L, 8L);
+                .containsExactly(2L, 6L, 1L, 4L, 7L, 8L, 9L);
 
         verify(statService, times(1)).getViews(anyList());
         verify(statService, times(1)).getConfirmedRequests(anyList());

@@ -22,7 +22,7 @@ class EventRequestStatusUpdateRequestDtoTest {
     @Autowired
     private JacksonTester<EventRequestStatusUpdateRequestDto> json;
 
-    private EventRequestStatusUpdateRequestDto request = EventRequestStatusUpdateRequestDto.builder()
+    private final EventRequestStatusUpdateRequestDto request = EventRequestStatusUpdateRequestDto.builder()
             .requestIds(List.of(1L, 2L, 3L))
             .status(RequestProcessedState.CONFIRMED)
             .build();

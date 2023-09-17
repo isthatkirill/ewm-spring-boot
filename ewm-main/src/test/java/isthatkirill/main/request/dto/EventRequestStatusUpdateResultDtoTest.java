@@ -23,7 +23,7 @@ class EventRequestStatusUpdateResultDtoTest {
     @Autowired
     private JacksonTester<EventRequestStatusUpdateResultDto> json;
 
-    private EventRequestStatusUpdateResultDto requestResult = EventRequestStatusUpdateResultDto.builder()
+    private final EventRequestStatusUpdateResultDto requestResult = EventRequestStatusUpdateResultDto.builder()
             .confirmedRequests(List.of(
                     ParticipationRequestDto.builder().created(LocalDateTime.now().minusDays(1L))
                             .requester(1L).event(1L).id(1L).status(RequestState.CONFIRMED).build(),

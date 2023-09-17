@@ -22,7 +22,7 @@ class ParticipationRequestDtoTest {
     @Autowired
     private JacksonTester<ParticipationRequestDto> json;
 
-    private ParticipationRequestDto participationRequest = ParticipationRequestDto.builder()
+    private final ParticipationRequestDto participationRequest = ParticipationRequestDto.builder()
             .id(1L)
             .requester(1L)
             .event(1L)
