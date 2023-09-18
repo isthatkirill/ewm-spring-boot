@@ -3,12 +3,14 @@ package isthatkirill.main.compilation.controller;
 import isthatkirill.main.compilation.dto.CompilationResponseDto;
 import isthatkirill.main.compilation.service.CompilationService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
+@Validated
 @RequestMapping("/compilations")
 @RestController
 @RequiredArgsConstructor

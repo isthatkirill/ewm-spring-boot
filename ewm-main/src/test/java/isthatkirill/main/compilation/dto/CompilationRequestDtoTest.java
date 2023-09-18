@@ -9,7 +9,7 @@ import org.springframework.boot.test.json.JsonContent;
 
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Kirill Emelyanov
