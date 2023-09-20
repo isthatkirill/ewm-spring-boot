@@ -21,7 +21,7 @@ class CompilationRequestDtoTest {
     @Autowired
     private JacksonTester<CompilationRequestDto> json;
 
-    private CompilationRequestDto compilationRequestDto = CompilationRequestDto.builder()
+    private final CompilationRequestDto compilationRequestDto = CompilationRequestDto.builder()
             .events(List.of(1L, 2L))
             .title("title")
             .pinned(true)

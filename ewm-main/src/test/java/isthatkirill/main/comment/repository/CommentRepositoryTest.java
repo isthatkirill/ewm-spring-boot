@@ -8,7 +8,7 @@ import org.springframework.test.context.jdbc.Sql;
 
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Kirill Emelyanov
@@ -45,10 +45,10 @@ class CommentRepositoryTest {
     void findAllCommentsForEventTest() {
         Long eventId = 2L;
         String keyword = "is my";
-        Integer size = 0;
-        Integer from = 10;
+        Integer size = 10;
+        Integer from = 0;
 
-        List<Comment> comments = commentRepository.findAllCommentsForEvent(eventId, keyword, size, from);
+        List<Comment> comments = commentRepository.findAllCommentsForEvent(eventId, keyword, from, size);
 
         assertThat(comments).hasSize(2)
                 .extracting(Comment::getMessage)

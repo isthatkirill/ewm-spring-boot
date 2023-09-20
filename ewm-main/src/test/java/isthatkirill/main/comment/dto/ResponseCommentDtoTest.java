@@ -21,7 +21,7 @@ class ResponseCommentDtoTest {
     @Autowired
     private JacksonTester<ResponseCommentDto> json;
 
-    private ResponseCommentDto responseCommentDto = ResponseCommentDto.builder()
+    private final ResponseCommentDto responseCommentDto = ResponseCommentDto.builder()
             .id(1L)
             .authorId(1L)
             .message("comment message")

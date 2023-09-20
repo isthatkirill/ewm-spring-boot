@@ -25,7 +25,7 @@ class CompilationResponseDtoTest {
     @Autowired
     private JacksonTester<CompilationResponseDto> json;
 
-    private CompilationResponseDto compilationResponseDto = CompilationResponseDto.builder()
+    private final CompilationResponseDto compilationResponseDto = CompilationResponseDto.builder()
             .id(1L)
             .events(List.of(
                     EventShortDto.builder()

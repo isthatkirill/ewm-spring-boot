@@ -23,10 +23,10 @@ INSERT INTO users (name, email) VALUES
 INSERT INTO events (annotation, created_on, description, event_date, paid, participant_limit, request_moderation, published_on, title, state, location_id, initiator_id, category_id) VALUES
 ('java', NOW(), 'java conference', NOW() + INTERVAL '3' DAY, true, 2, true, null, 'java conference title', 'PENDING', 1, 1, 1), -- id=1
 ('c++', NOW(), 'c++ conference', NOW() + INTERVAL '4' DAY, true, 2, false, NOW(), 'c++ conference title', 'PUBLISHED', 2, 1, 1), -- id=2
-('NASM', NOW(), 'NASM conference', NOW() + INTERVAL '5' DAY, true, 3, true, NULL, 'NASM conference title', 'CANCELED', 3, 1, 2), -- id=3
+('NASM', NOW(), 'NASM conference', NOW() + INTERVAL '5' DAY, true, 3, true, NULL, 'NASM conference title', 'CANCELED', 2, 1, 2), -- id=3
 ('Prolog', NOW(), 'Prolog conference', NOW() + INTERVAL '5' DAY, false, 3, false, NOW(), 'Prolog conference title', 'PUBLISHED', 4, 1, 2), -- id=4
 ('Lisp', NOW(), 'Lisp conference', NOW() + INTERVAL '5' DAY, false, 3, true, null, 'Lisp conference title', 'PENDING', 5, 1, 2), -- id=5
-('CSS', NOW(), 'CSS conference', NOW() + INTERVAL '5' DAY, false, 2, true, NOW(), 'CSS conference title', 'PUBLISHED', 6, 2, 3), -- id=6
+('CSS', NOW(), 'CSS conference', NOW() + INTERVAL '5' DAY, false, 2, true, NOW(), 'CSS conference title', 'PUBLISHED', 3, 2, 3), -- id=6
 ('Javascript', NOW(), 'Javascript conference', NOW() + INTERVAL '5' DAY, false, 2, false, NOW(), 'Javascript conference title', 'PUBLISHED', 6, 3, 3), -- id=7
 ('HTML', NOW(), 'HTML conference', NOW() + INTERVAL '5' DAY, false, 4, false, NOW(), 'HTML conference title', 'PUBLISHED', 6, 4, 3), -- id=8
 ('Spring Data JPA', NOW(), 'Spring Data JPA conference', NOW() + INTERVAL '6' DAY, true, 4, true, NOW(), 'Spring Data JPA conference title', 'PUBLISHED', 7, 4, 4), -- id=9

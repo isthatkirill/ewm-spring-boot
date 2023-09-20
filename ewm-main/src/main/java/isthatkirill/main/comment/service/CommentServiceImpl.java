@@ -58,6 +58,7 @@ public class CommentServiceImpl implements CommentService {
     @Transactional(readOnly = true)
     public ResponseCommentDto getByIdByUser(Long userId, Long commentId) {
         log.info("User id={} requested his own comment id={}", userId, commentId);
+        checkIfUserExists(userId);
         return commentMapper.toResponseCommentDto(checkIfOwnCommentExistsAndGet(userId, commentId));
     }
 
@@ -65,6 +66,7 @@ public class CommentServiceImpl implements CommentService {
     @Transactional(readOnly = true)
     public List<ResponseCommentDto> getUsersComments(Long userId) {
         log.info("User id={} requested all his comments", userId);
+        checkIfUserExists(userId);
         return commentMapper.toResponseCommentDto(commentRepository.getCommentsByAuthorId(userId));
     }
 
