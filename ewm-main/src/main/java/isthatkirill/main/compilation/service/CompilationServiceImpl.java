@@ -122,7 +122,7 @@ public class CompilationServiceImpl implements CompilationService {
 
     private void checkIfAllEventsFound(Integer found, Integer provided) {
         if (!found.equals(provided)) {
-            throw new EntityNotFoundException("Not all compilations found");
+            throw new EntityNotFoundException("Not all events found");
         }
     }
 
