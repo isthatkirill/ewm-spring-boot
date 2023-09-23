@@ -34,7 +34,7 @@ class UpdateEventDtoTest {
 
     @Test
     @SneakyThrows
-    void UpdateEventDtoTest() {
+    void updateEventDtoTest() {
         JsonContent<UpdateEventDto> result = json.write(updateEventDto);
 
         assertThat(result)
@@ -53,7 +53,7 @@ class UpdateEventDtoTest {
 
     @Test
     @SneakyThrows
-    void UpdateEventDtoWithNullFieldsTest() {
+    void updateEventDtoWithNullFieldsTest() {
         updateEventDto.setEventDate(null);
         updateEventDto.setLocation(null);
         JsonContent<UpdateEventDto> result = json.write(updateEventDto);

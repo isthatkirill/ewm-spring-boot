@@ -1,11 +1,7 @@
 package isthatkirill.main.location.dto;
 
-import isthatkirill.main.validation.group.OnCreate;
-import isthatkirill.main.validation.group.OnUpdate;
-import isthatkirill.main.validation.group.OnUpdateAdmin;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.springframework.validation.annotation.Validated;
 
 import javax.validation.constraints.NotNull;
 
