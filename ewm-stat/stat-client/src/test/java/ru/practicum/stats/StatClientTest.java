@@ -1,6 +1,10 @@
 package ru.practicum.stats;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import isthatkirill.stats.StatClient;
+import isthatkirill.stats.WebClientConfig;
+import isthatkirill.stats.dto.EndpointHitDto;
+import isthatkirill.stats.dto.ViewStatsDto;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -9,19 +13,17 @@ import org.mockserver.integration.ClientAndServer;
 import org.mockserver.model.MediaType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import ru.practicum.stats.dto.EndpointHitDto;
-import ru.practicum.stats.dto.ViewStatsDto;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+import static isthatkirill.stats.util.Formats.DATE_PATTERN;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockserver.integration.ClientAndServer.startClientAndServer;
 import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
-import static ru.practicum.stats.util.Formats.DATE_PATTERN;
 
 @SpringBootTest(classes = {StatClient.class, WebClientConfig.class})
 class StatClientTest {
